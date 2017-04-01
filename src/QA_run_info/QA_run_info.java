@@ -72,7 +72,6 @@ public class QA_run_info
 				logu++;
 			} else if (args[len].equals("-L") || args[len].equals("-l")) {
 				PutPath = args[len + 1];
-				;
 				logl++;
 			} else if ((args_len == 1) && args[0].equals("-help")) {
 				System.out.println();
