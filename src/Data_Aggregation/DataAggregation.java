@@ -852,8 +852,8 @@ public class DataAggregation
 				channelExec.connect();
 				// 接收远程服务器执行命令的结果 
 				String line = null;
-				while ((line = input.readLine()) != null) { 
-	            } // 循环读出系统调用返回值，保证脚本调用正常完成
+				while ((line = input.readLine()) != null) {
+				} // 循环读出系统调用返回值，保证脚本调用正常完成
 				input.close(); 
 				channelExec.disconnect();
 				session.disconnect();
