@@ -192,7 +192,7 @@ public class QA_run_info
 		}
 
 		Thread.sleep(3000);
-		uploadFileToFront(dir); // 上传文件到阿里云端
+		//uploadFileToFront(dir); // 上传文件到阿里云端
 
 		Calendar now_end = Calendar.getInstance();
 		SimpleDateFormat formatter_end = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

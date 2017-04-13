@@ -837,19 +837,28 @@ public class DataAggregation
 			if (!(new File(PutPath).exists()) && !(new File(PutPath).isDirectory())) {
 				String command = "mkdir " + PutPath;
 				JSch jsch = new JSch();
+				// 创建session并且打开连接，因为创建session之后要主动打开连接
 				Session session = jsch.getSession(user, host, port);
 				Hashtable<String, String> config = new Hashtable<String, String>();
 				config.put("StrictHostKeyChecking", "no");
 				session.setConfig(config);
 				session.setPassword(pass);
 				session.connect();
+				// 打开通道，设置通道类型，和执行的命令
 				ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
 				channelExec.setCommand(command);
+				channelExec.setInputStream(null);
+	            BufferedReader input = new BufferedReader(new InputStreamReader(channelExec.getInputStream()));
 				channelExec.connect();
+				// 接收远程服务器执行命令的结果
+	            String line;
+	            while ((line = input.readLine()) != null) { 
+	            } // 循环读出系统调用返回值，保证脚本调用正常完成
+	            input.close(); 
 				channelExec.disconnect();
 				session.disconnect();
 			}
-			Thread.sleep(500);
+			Thread.sleep(1000);
 
 			Connection con = new Connection(host);
 			con.connect();
