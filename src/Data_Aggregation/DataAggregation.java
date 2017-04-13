@@ -850,11 +850,11 @@ public class DataAggregation
 				channelExec.setInputStream(null);
 				BufferedReader input = new BufferedReader(new InputStreamReader(channelExec.getInputStream()));
 				channelExec.connect();
-				// 接收远程服务器执行命令的结果
-	            String line;
-	            while ((line = input.readLine()) != null) { 
+				// 接收远程服务器执行命令的结果 
+				String line = null;
+				while ((line = input.readLine()) != null) { 
 	            } // 循环读出系统调用返回值，保证脚本调用正常完成
-	            input.close(); 
+				input.close(); 
 				channelExec.disconnect();
 				session.disconnect();
 			}
