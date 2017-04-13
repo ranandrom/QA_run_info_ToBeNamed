@@ -848,7 +848,7 @@ public class DataAggregation
 				ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
 				channelExec.setCommand(command);
 				channelExec.setInputStream(null);
-	            BufferedReader input = new BufferedReader(new InputStreamReader(channelExec.getInputStream()));
+				BufferedReader input = new BufferedReader(new InputStreamReader(channelExec.getInputStream()));
 				channelExec.connect();
 				// 接收远程服务器执行命令的结果
 	            String line;
