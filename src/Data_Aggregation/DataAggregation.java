@@ -257,7 +257,7 @@ public class DataAggregation
 		// 上传文件到wdmycloud
 		if (Upload == 1) {
 			for (int i = 0; i < File_List.size(); i++) {
-				uploadFileToWdmycloud(File_List.get(i), PutPath);
+				uploadFileToWdmycloud(File_List.get(i), PutPath, 0);
 			}
 		}
 
@@ -827,7 +827,7 @@ public class DataAggregation
 	 * @param PutPath
 	 */
 	@SuppressWarnings("unused")
-	public static void uploadFileToWdmycloud(String filename, String PutPath)
+	public static int uploadFileToWdmycloud(String filename, String PutPath, int x)
 	{
 		String user = "zhirong_lu";
 		String pass = "zhirong_lu";
@@ -868,6 +868,17 @@ public class DataAggregation
 			con.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+			x++;
+			if (x == 1000) {
+				System.out.println("ssh连续申请链接1000次都没有成功，程序直接退出执行！");
+				return -1;
+			}
+			int i = 1;
+			i = uploadFileToWdmycloud(filename, PutPath, x);
+			if (i == 0) {
+				System.out.println("ssh过程中拋出异常，但程序已自动修复成功！");
+			}
 		}
+		return 0;
 	}
 }
