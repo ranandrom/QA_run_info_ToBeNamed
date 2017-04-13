@@ -27,6 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
 import ch.ethz.ssh2.Connection;
@@ -257,7 +258,10 @@ public class DataAggregation
 		// 上传文件到wdmycloud
 		if (Upload == 1) {
 			for (int i = 0; i < File_List.size(); i++) {
-				uploadFileToWdmycloud(File_List.get(i), PutPath, 0);
+				int y = uploadFileToWdmycloud(File_List.get(i), PutPath);
+				if (y != 0) {
+					break;
+				}
 			}
 		}
 
@@ -819,66 +823,87 @@ public class DataAggregation
 		}
 		return All_File_Path;
 	}
-
+	
 	/**
-	 * 用SSh上传文件到wdmycloud上
+	 * 調用ssh的方法，若ssh过程中拋出异常，程序自动修复，但ssh连续申请链接1000次都没有成功，程序直接退出执行！
 	 * 
 	 * @param filename
 	 * @param PutPath
 	 */
+	public static int uploadFileToWdmycloud(String filename, String PutPath)
+	{
+		int x = 0;
+		while (true) {
+			try {
+				sshfun(filename, PutPath);
+				if (x != 0) {
+					System.out.println();
+					System.out.println("ssh过程中拋出异常，但程序已自动修复成功！ ");
+					x = 0;
+				}
+				break;
+			} catch (Exception e) {
+				e.printStackTrace();
+				x++;		
+			}
+			if (x == 100) {
+				System.out.println();
+				System.out.println("ssh连续申请链接100次都没有成功，程序直接退出执行！");
+				return -1;
+			} else {
+				System.out.println();
+				System.out.println("ssh过程中第" + x +"拋出异常，但程序正在尝试自动修复！ ");
+				continue;
+			}		
+		}
+		return 0;
+	}
+
+	/**
+	 * 用SSh上传文件到wdmycloud上的方法
+	 * 
+	 * @param filename
+	 * @param PutPath
+	 * @throws Exception 
+	 */
 	@SuppressWarnings("unused")
-	public static int uploadFileToWdmycloud(String filename, String PutPath, int x)
+	public static void sshfun(String filename, String PutPath) throws Exception
 	{
 		String user = "zhirong_lu";
 		String pass = "zhirong_lu";
 		String host = "192.192.192.220";
 		int port = 22;
-		try {
-			if (!(new File(PutPath).exists()) && !(new File(PutPath).isDirectory())) {
-				String command = "mkdir " + PutPath;
-				JSch jsch = new JSch();
-				// 创建session并且打开连接，因为创建session之后要主动打开连接
-				Session session = jsch.getSession(user, host, port);
-				Hashtable<String, String> config = new Hashtable<String, String>();
-				config.put("StrictHostKeyChecking", "no");
-				session.setConfig(config);
-				session.setPassword(pass);
-				session.connect();
-				// 打开通道，设置通道类型，和执行的命令
-				ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
-				channelExec.setCommand(command);
-				channelExec.setInputStream(null);
-				BufferedReader input = new BufferedReader(new InputStreamReader(channelExec.getInputStream()));
-				channelExec.connect();
-				// 接收远程服务器执行命令的结果 
-				String line = null;
-				while ((line = input.readLine()) != null) {
-				} // 循环读出系统调用返回值，保证脚本调用正常完成
-				input.close(); 
-				channelExec.disconnect();
-				session.disconnect();
-			}
-			Thread.sleep(1000);
-
-			Connection con = new Connection(host);
-			con.connect();
-			boolean isAuthed = con.authenticateWithPassword(user, pass);
-			SCPClient scpClient = con.createSCPClient();
-			scpClient.put(filename, PutPath); // 从本地复制文件到远程目录
-			con.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			x++;
-			if (x == 1000) {
-				System.out.println("ssh连续申请链接1000次都没有成功，程序直接退出执行！");
-				return -1;
-			}
-			int i = 1;
-			i = uploadFileToWdmycloud(filename, PutPath, x);
-			if (i == 0) {
-				System.out.println("ssh过程中拋出异常，但程序已自动修复成功！");
-			}
+		if (!(new File(PutPath).exists()) && !(new File(PutPath).isDirectory())) {
+			String command = "mkdir " + PutPath;
+			JSch jsch = new JSch();
+			// 创建session并且打开连接，因为创建session之后要主动打开连接
+			Session session = jsch.getSession(user, host, port);
+			Hashtable<String, String> config = new Hashtable<String, String>();
+			config.put("StrictHostKeyChecking", "no");
+			session.setConfig(config);
+			session.setPassword(pass);
+			session.connect();
+			// 打开通道，设置通道类型，和执行的命令
+			ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+			channelExec.setCommand(command);
+			channelExec.setInputStream(null);
+			BufferedReader input = new BufferedReader(new InputStreamReader(channelExec.getInputStream()));
+			channelExec.connect();
+			// 接收远程服务器执行命令的结果 
+			String line = null;
+			while ((line = input.readLine()) != null) {
+			} // 循环读出系统调用返回值，保证脚本调用正常完成
+			input.close(); 
+			channelExec.disconnect();
+			session.disconnect();
 		}
-		return 0;
+		Thread.sleep(1000);
+
+		Connection con = new Connection(host);
+		con.connect();
+		boolean isAuthed = con.authenticateWithPassword(user, pass);
+		SCPClient scpClient = con.createSCPClient();
+		scpClient.put(filename, PutPath); // 从本地复制文件到远程目录
+		con.close();
 	}
 }
