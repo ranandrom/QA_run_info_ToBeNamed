@@ -1195,7 +1195,7 @@ public class SubThread extends Thread
 					}
 					if (data == null) {
 						if (deduped_cvg != null) {
-							String[] cmd1_3 = { "Rscript",
+							String[] cmd1_3 = { "/anchordx-opt/local/bin/Rscript",
 									"/home/jiacheng_chuan/Ironman/DataArrangement/calcUniformity.R", deduped_cvg };
 							Process process1_3 = Runtime.getRuntime().exec(cmd1_3);
 							BufferedReader input1_3 = new BufferedReader(
@@ -1225,7 +1225,7 @@ public class SubThread extends Thread
 					}
 				} else {
 					if (deduped_cvg != null) {
-						String[] cmd1_3 = { "Rscript", "/home/jiacheng_chuan/Ironman/DataArrangement/calcUniformity.R",
+						String[] cmd1_3 = { "/anchordx-opt/local/bin/Rscript", "/home/jiacheng_chuan/Ironman/DataArrangement/calcUniformity.R",
 								deduped_cvg };
 						Process process1_3 = Runtime.getRuntime().exec(cmd1_3);
 						BufferedReader input1_3 = new BufferedReader(
