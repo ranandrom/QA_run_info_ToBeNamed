@@ -39,7 +39,7 @@ public class QA_run_info
 		String day = formatter.format(now_star.getTime()); // 格式化后的日期
 
 		int args_len = args.length; // 系统传入主函数的参数长度
-		int Cover = 1; // 0代表覆盖汇总表，1代表追加
+		int Cover = 1; // 0代表覆盖汇总表，1代表更新
 		int Uploadtag = 0; // 0代表所有表上传，1代表只上传更新表
 		int Upload = 1; // 设置是否需要上传至/wdmycloud/anchordx_cloud/杨莹莹/项目-生信-汇总表/，0代表不上传，1代表上传
 		String dir = "./Ironman"; // 输出结果路径
@@ -84,7 +84,7 @@ public class QA_run_info
 				System.out.println(
 						"-P or -p\t Set operation path. The default value is \"/Src_Data1/analysis/Ironman/\".");
 				System.out.println(
-						"-C or -c\t Set Whether cover old file. Inuput 0 or 1, 0 representative overwrite file data and 1 additional file data. The default value is 1.");
+						"-C or -c\t Set Whether cover old file. Inuput 0 or 1, 0 representative overwrite file data and 1 updata file data. The default value is 1.");
 				System.out.println("-O or -o\t Set output file. The default value is \"./Ironman\".");
 				System.out.println(
 						"-U or -u\t Set Whether upload file to wdmycloud. Inuput 0 or 1, 1 representative upload file and 0 is not. The default value is 1.");
@@ -103,7 +103,7 @@ public class QA_run_info
 				System.out.println(
 						"-P or -p\t Set operation path. The default value is \"/Src_Data1/analysis/Ironman/\".");
 				System.out.println(
-						"-C or -c\t Set Whether cover old file. Inuput 0 or 1, 0 representative overwrite file data and 1 additional file data. The default value is 1.");
+						"-C or -c\t Set Whether cover old file. Inuput 0 or 1, 0 representative overwrite file data and 1 updata file data. The default value is 1.");
 				System.out.println("-O or -o\t Set output file. The default value is \"./Ironman\".");
 				System.out.println(
 						"-U or -u\t Set Whether upload file to wdmycloud. Inuput 0 or 1, 1 representative upload file and 0 is not. The default value is 1.");
@@ -123,7 +123,7 @@ public class QA_run_info
 				System.out.println(
 						"-P or -p\t Set operation path. The default value is \"/Src_Data1/analysis/Ironman/\".");
 				System.out.println(
-						"-C or -c\t Set Whether cover old file. Inuput 0 or 1, 0 representative overwrite file data and 1 additional file data. The default value is 1.");
+						"-C or -c\t Set Whether cover old file. Inuput 0 or 1, 0 representative overwrite file data and 1 updata file data. The default value is 1.");
 				System.out.println("-O or -o\t Set output file. The default value is \"./Ironman\".");
 				System.out.println(
 						"-U or -u\t Set Whether upload file to wdmycloud. Inuput 0 or 1, 1 representative upload file and 0 is not. The default value is 1.");
@@ -144,9 +144,19 @@ public class QA_run_info
 
 		String Data_Aggregation_Path = dir + "/Data_Aggregation/";
 		File DAP = new File(Data_Aggregation_Path);
+		String oldfileday = null;
 		if (Cover == 1) {
 			if (DAP.exists() && DAP.isDirectory()) {
-				Copy_Old_File(Data_Aggregation_Path); // 复制指定目录下最新日期的文件
+				//copyOldFile(Data_Aggregation_Path); // 复制指定目录下最新日期的文件
+				oldfileday = rsyncOldExcel(Data_Aggregation_Path); // 复制指定目录下最新日期的文件
+				if (oldfileday == null) {
+					System.out.println("rsync 失败！");
+					System.out.println();
+					return;
+				} else {
+					System.out.println("rsync 成功！");
+					System.out.println();
+				}
 			} else {
 				System.out.println(Data_Aggregation_Path + "目录不存在");
 			}
@@ -185,13 +195,25 @@ public class QA_run_info
 		exe.shutdown(); // 关闭线程池
 		while (true) {
 			if (exe.isTerminated()) { // 先让所有的子线程运行完，再运行主线程
-				DataAggregation.outPutData(dir + "/Data_Aggregation/" + day, Path, Cover, PutPath, Uploadtag, Upload); // 数据汇总
+				DataAggregation.outPutData(dir + "/Data_Aggregation/" + day, Path, Cover, PutPath, Uploadtag, Upload, oldfileday); // 数据汇总
 				break;
 			}
 			Thread.sleep(500);
 		}
 
-		Thread.sleep(3000);
+		String cmd2 = "rm -r ./oldExcel";
+		try {
+			Process process2 = Runtime.getRuntime().exec(cmd2);
+			BufferedReader input2 = new BufferedReader(new InputStreamReader(process2.getInputStream()));
+			String line2 = null;
+			while ((line2 = input2.readLine()) != null) { // 循环读出系统返回数据，保证系统调用已经正常结束
+				// System.out.println(line);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//Thread.sleep(3000);
 		//uploadFileToFront(dir); // 上传文件到阿里云端
 
 		Calendar now_end = Calendar.getInstance();
@@ -201,6 +223,32 @@ public class QA_run_info
 		System.out.println("程序结束时间: " + formatter_end.format(now_end.getTime()));
 		System.out.println();
 	}
+	
+	/**
+	 * 远程复制文件的方法：
+	 * 利用rsync远程复制zhirong_lu@192.192.192.200:/wdmycloud/anchordx_cloud/杨莹莹/
+	 * 项目-生信-汇总表/最新目录到本地，程序正常返回0，否则返回-1.
+	 */
+	public static String rsyncOldExcel(String Path)
+	{
+		String daynum = getNewestFileDir(Path); // 获取指定目录下最新日期命名的目录名
+		try {
+			String cmd_Sample_statistics[] = {"rsync", "-aP", "--include=*/", "--include=**/*.xls*",
+					"--exclude=*", "zhirong_lu@192.192.192.220:/wdmycloud/anchordx_cloud/杨莹莹/项目-生信-汇总表/"+daynum, "./oldExcel/"};
+			Process process = Runtime.getRuntime().exec(cmd_Sample_statistics);
+			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line = null;
+			while ((line = input.readLine()) != null) { // 循环读出系统返回数据，保证系统调用已经正常结束
+				 //System.out.println(line);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "off";
+		}
+		//copyOldFile("./oldExcel/", Path);
+		//copyOldFile("./oldExcel/", "./oldExcel/");
+		return daynum;
+	}
 
 	/**
 	 * 复制指定目录下最新日期的文件
@@ -208,13 +256,13 @@ public class QA_run_info
 	 * @param Path
 	 */
 	@SuppressWarnings("unused")
-	public static void Copy_Old_File(String Path)
+	public static void copyOldFile(String oldExcelPath, String Path)
 	{
 		Calendar now_star = Calendar.getInstance();
 		SimpleDateFormat formatter_Date = new SimpleDateFormat("yyyyMMdd");
 		String Day = formatter_Date.format(now_star.getTime());
-		String daynum = getNewFilePAth(Path); // 获取指定目录下最新日期命名的目录名
-		String cmd1 = "find " + Path + daynum + " -type f -name *" + daynum + "*.xlsx";
+		String daynum = getNewestFileDir(oldExcelPath); // 获取指定目录下最新日期命名的目录名
+		String cmd1 = "find " + oldExcelPath + daynum + " -type f -name *" + daynum + "*.xlsx";
 		my_mkdir(Path + "/" + Day); // 创建当天日期命名的目录
 		try {
 			Process process = Runtime.getRuntime().exec(cmd1);
@@ -253,7 +301,7 @@ public class QA_run_info
 	 * @param Path
 	 * @return String
 	 */
-	public static String getNewFilePAth(String Path)
+	public static String getNewestFileDir(String Path)
 	{
 		File file = new File(Path);
 		int daynum = 0;

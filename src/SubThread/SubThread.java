@@ -81,25 +81,30 @@ public class SubThread extends Thread
 							String Por_dir = Sequencing_Info + "/" + Por_name;
 							String Plasma_ExcelName = "QA_run_info_" + Por_name + "_Plasma_" + Day + "." + ExcelFormat; // 血浆表
 							String Tissue_ExcelName = "QA_run_info_" + Por_name + "_Tissue_" + Day + "." + ExcelFormat; // 组织表
-							String Unknown_ExcelName = "QA_run_info_" + Por_name + "_Unknown_" + Day + "."
-									+ ExcelFormat; // 其他的数据表
+							String BC_ExcelName = "QA_run_info_" + Por_name + "_BC_" + Day + "." + ExcelFormat; // 白细胞表
+							String Test_ExcelName = "QA_run_info_" + Por_name + "_Test_" + Day + "."
+									+ ExcelFormat; // 测试数据表
 							String Plasma_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Plasma_" + Day + ".tsv"; // 血浆tsv文件
 							String Tissue_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Tissue_" + Day + ".tsv"; // 组织tsv文件
-							String Unknown_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Unknown_" + Day + ".tsv"; // 其他的数据tsv文件
+							String BC_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_BC_" + Day + ".tsv"; // 白细胞tsv文件
+							String Test_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Test_" + Day + ".tsv"; // 测试数据tsv文件
 							String Plasma_Excel = Por_dir + "/" + Plasma_ExcelName;
 							String Tissue_Excel = Por_dir + "/" + Tissue_ExcelName;
-							String Unknown_Excel = Por_dir + "/" + Unknown_ExcelName;
+							String BC_Excel = Por_dir + "/" + BC_ExcelName;
+							String Test_Excel = Por_dir + "/" + Test_ExcelName;
 							File Plasma_excel = new File(Plasma_Excel);
 							File Tissue_excel = new File(Tissue_Excel);
-							File Unknown_excel = new File(Unknown_Excel);
+							File BC_excel = new File(BC_Excel);
+							File Test_excel = new File(Test_Excel);
 							my_mkdir(Por_dir);
 
 							createXlsx(Plasma_excel); // 创建血浆表
 							createXlsx(Tissue_excel); // 创建组织表
-							createXlsx(Unknown_excel); // 不明白的数据表
+							createXlsx(BC_excel); // 创建测试表
+							createXlsx(Test_excel); // 测试的数据表
 
-							calculatedData(Plasma_Excel, Tissue_Excel, Unknown_Excel, Plasma_Tsv, Tissue_Tsv,
-									Unknown_Tsv, Path);
+							calculatedData(Plasma_Excel, Tissue_Excel, BC_Excel, Test_Excel, Plasma_Tsv, Tissue_Tsv, BC_Tsv,
+									Test_Tsv, Path);
 						} else {
 							continue;
 						}
@@ -115,23 +120,28 @@ public class SubThread extends Thread
 			String Por_dir = dir + "/" + Foldername + "/" + Por_name;
 			String Plasma_ExcelName = "QA_run_info_" + Por_name + "_Plasma_" + Day + "." + ExcelFormat; // 血浆表
 			String Tissue_ExcelName = "QA_run_info_" + Por_name + "_Tissue_" + Day + "." + ExcelFormat; // 组织表
-			String Unknown_ExcelName = "QA_run_info_" + Por_name + "_Unknown_" + Day + "." + ExcelFormat; // 其他的数据表
+			String BC_ExcelName = "QA_run_info_" + Por_name + "_BC_" + Day + "." + ExcelFormat; // 白细胞表
+			String Test_ExcelName = "QA_run_info_" + Por_name + "_Test_" + Day + "." + ExcelFormat; // 测试数据表
 			String Plasma_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Plasma_" + Day + ".tsv"; // 血浆tsv文件
 			String Tissue_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Tissue_" + Day + ".tsv"; // 组织tsv文件
-			String Unknown_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Unknown_" + Day + ".tsv"; // 其他的数据tsv文件
+			String BC_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_BC_" + Day + ".tsv"; // 白细胞tsv文件
+			String Test_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Test_" + Day + ".tsv"; // 测试数据tsv文件
 			String Plasma_Excel = Por_dir + "/" + Plasma_ExcelName;
 			String Tissue_Excel = Por_dir + "/" + Tissue_ExcelName;
-			String Unknown_Excel = Por_dir + "/" + Unknown_ExcelName;
+			String BC_Excel = Por_dir + "/" + BC_ExcelName;
+			String Test_Excel = Por_dir + "/" + Test_ExcelName;
 			File Plasma_excel = new File(Plasma_Excel);
 			File Tissue_excel = new File(Tissue_Excel);
-			File Unknown_excel = new File(Unknown_Excel);
+			File BC_excel = new File(BC_Excel);
+			File Test_excel = new File(Test_Excel);
 			my_mkdir(Por_dir);
 
 			createXlsx(Plasma_excel); // 创建血浆表
 			createXlsx(Tissue_excel); // 创建组织表
-			createXlsx(Unknown_excel); // 不明白的数据表
+			createXlsx(BC_excel); // 创建测试表
+			createXlsx(Test_excel); // 测试的数据表
 
-			calculatedData(Plasma_Excel, Tissue_Excel, Unknown_Excel, Plasma_Tsv, Tissue_Tsv, Unknown_Tsv, Path);
+			calculatedData(Plasma_Excel, Tissue_Excel, BC_Excel, Test_Excel, Plasma_Tsv, Tissue_Tsv, BC_Tsv, Test_Tsv, Path);
 		}
 	}
 
@@ -926,13 +936,14 @@ public class SubThread extends Thread
 	 * @param Unknown_Tsv
 	 * @param Input
 	 */
-	public static void calculatedData(String Plasma_Excel, String Tissue_Excel, String Unknown_Excel, String Plasma_Tsv,
-			String Tissue_Tsv, String Unknown_Tsv, String Input)
+	public static void calculatedData(String Plasma_Excel, String Tissue_Excel, String BC_Excel, String Test_Excel, String Plasma_Tsv,
+			String Tissue_Tsv, String BC_Tsv, String Test_Tsv, String Input)
 	{
 		String data = null;
 		File Plasma_File = new File(Plasma_Excel);
 		File Tissue_File = new File(Tissue_Excel);
-		File Unknown_File = new File(Unknown_Excel);
+		File BC_File = new File(BC_Excel);
+		File Test_File = new File(Test_Excel);
 		HashMap<String, String> map_logo = new HashMap<String, String>(); // 数据结果的集合
 		ArrayList<String> ID_data = searchFile(Input);
 		ArrayList<String> Warning_List = new ArrayList<String>();
@@ -952,20 +963,24 @@ public class SubThread extends Thread
 					Pre_lib_name = Extract_Pre_lib_name(ID_dataArr[0]);
 					String Pre_lib_name_Arr[] = Pre_lib_name.split("-");
 					if (Pre_lib_name_Arr.length < 3) {
-						file = Unknown_File;
+						file = Test_File;
 						Pre_lib_name = ID_dataArr[0];
 						underlog = 1;
 					}
 				} else {
-					file = Unknown_File;
+					file = Test_File;
 					Pre_lib_name = ID_dataArr[0];
 					underlog = 1;
 				}
 				if (Pre_lib_name != null) {
 					if ((Pre_lib_name.contains("-BD") || Pre_lib_name.contains("-PS")) && file == null) {
 						file = Plasma_File;
-					} else if (file == null) {
+					} else if (Pre_lib_name.contains("-F") && file == null) {
 						file = Tissue_File;
+					} else if (Pre_lib_name.contains("-BC") && file == null) {
+						file = BC_File;
+					} else if (file == null) {
+						file = Test_File;
 					}
 					Sample_ID = Regular_Expression(Pre_lib_name, regEx);
 					if (Sample_ID == null) {
@@ -979,21 +994,16 @@ public class SubThread extends Thread
 				String Sequencing_Info = Extract_Sequencing_Info(ID_dataArr[1]);
 
 				map_logo.put("Sample ID", Sample_ID); // 向数据结果集合添加Sample ID的值
-				map_logo.put("Pre-lib name", Pre_lib_name); // 向数据结果集合添加Pre-lib
-															// name的值
-				map_logo.put("Identification name", ID_dataArr[0]); // 向数据结果集合添加Identification
-																	// name的值
-				map_logo.put("Sequencing info", Sequencing_Info); // 向数据结果集合添加Sequencing
-																	// info的值
+				map_logo.put("Pre-lib name", Pre_lib_name); // 向数据结果集合添加Pre-lib name的值
+				map_logo.put("Identification name", ID_dataArr[0]); // 向数据结果集合添加Identification name的值
+				map_logo.put("Sequencing info", Sequencing_Info); // 向数据结果集合添加Sequencing info的值
 
 				String cmd = "find /Src_Data1/nextseq500 /Src_Data1/x10/ -name " + "*" + ID_dataArr[0] + "*";
 				Process process = Runtime.getRuntime().exec(cmd);
 				BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String Sequencing_file_name = null;
 				if ((Sequencing_file_name = input.readLine()) != null) {
-					map_logo.put("Sequencing file name", Sequencing_file_name); // 向数据结果集合添加Sequencing
-																				// file
-																				// name的值
+					map_logo.put("Sequencing file name", Sequencing_file_name); // 向数据结果集合添加Sequencing file name的值
 				} else {
 					map_logo.put("Sequencing file name", "NA");
 				}
@@ -1030,7 +1040,7 @@ public class SubThread extends Thread
 					} else if (line1.endsWith("sorted.bam.hsmetrics.txt")) {
 						origin_hsmetrics = line1;
 						tag++;
-					} else if (line1.endsWith("fastq.gz_bismark_bt2_PE_report.txt")) {
+					} else if (line1.endsWith("PE_report.txt")) {
 						bisulfite = line1;
 						tag++;
 					} else if (line1.endsWith("hsmetrics.QC.xls") || line1.endsWith("hsmetrics.QC.xlsx")) {
@@ -1550,12 +1560,19 @@ public class SubThread extends Thread
 		}
 		rewriteExcelData(Tissue_File); // 去除重复行
 		writeToTsv(Tissue_Excel, Tissue_Tsv); // 写成tsv格式文件
-
-		// 其他数据表
-		while (removeNullRow(Unknown_File) != 0) {
-			removeNullRow(Unknown_File); // 去除空行
+		
+		// 白细胞表
+		while (removeNullRow(BC_File) != 0) {
+			removeNullRow(BC_File); // 去除空行
 		}
-		rewriteExcelData(Unknown_File); // 去除重复行
-		writeToTsv(Unknown_Excel, Unknown_Tsv); // 写成tsv格式文件
+		rewriteExcelData(BC_File); // 去除重复行
+		writeToTsv(BC_Excel, BC_Tsv); // 写成tsv格式文件
+
+		// 测试数据表
+		while (removeNullRow(Test_File) != 0) {
+			removeNullRow(Test_File); // 去除空行
+		}
+		rewriteExcelData(Test_File); // 去除重复行
+		writeToTsv(Test_Excel, Test_Tsv); // 写成tsv格式文件
 	}
 }

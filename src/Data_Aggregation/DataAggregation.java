@@ -56,7 +56,7 @@ public class DataAggregation
 	 * @param Upload
 	 */
 	@SuppressWarnings("unused")
-	public static void outPutData(String dir, String Path, int Cover, String PutPath, int Uploadtag, int Upload)
+	public static void outPutData(String dir, String Path, int Cover, String PutPath, int Uploadtag, int Upload, String oldfileday)
 	{
 		System.out.println();
 		Calendar now_star = Calendar.getInstance();
@@ -66,9 +66,11 @@ public class DataAggregation
 
 		SimpleDateFormat formatter_Date = new SimpleDateFormat("yyyyMMdd");
 		String Day = formatter_Date.format(now_star.getTime());
-		String Plasma_File = dir + "/" + "Plasma_" + Day + ".xlsx";
-		String Tissue_File = dir + "/" + "Tissue_" + Day + ".xlsx";
-		String Unknown_File = dir + "/" + "Unknown_" + Day + ".xlsx";
+		String Plasma_File = dir + "/" + "Plasma_All_" + Day + ".xlsx";
+		String Tissue_File = dir + "/" + "Tissue_All_" + Day + ".xlsx";
+		String BC_File = dir + "/" + "BC_All_" + Day + ".xlsx";
+		String Test_File = dir + "/" + "Test_All_" + Day + ".xlsx";
+		String old_file_dir = "./oldExcel/" + oldfileday;
 
 		// 创建目录输出
 		my_mkdir(dir);
@@ -81,44 +83,78 @@ public class DataAggregation
 		if (!new File(Tissue_File).exists() && !new File(Tissue_File).isFile()) {
 			createXlsx(new File(Tissue_File));
 		}
-		// 如果文件不存在，则创建其他数据表
-		if (!new File(Unknown_File).exists() && !new File(Unknown_File).isFile()) {
-			createXlsx(new File(Unknown_File));
+		// 如果文件不存在，则创建白细胞数据表
+		if (!new File(BC_File).exists() && !new File(BC_File).isFile()) {
+			createXlsx(new File(BC_File));
+		}
+		// 如果文件不存在，则创建测试数据表
+		if (!new File(Test_File).exists() && !new File(Test_File).isFile()) {
+			createXlsx(new File(Test_File));
 		}
 
 		ArrayList<String> Plasma_File_List = new ArrayList<String>(); // 血浆表文件列表
 		ArrayList<String> Tissue_File_List = new ArrayList<String>(); // 组织表文件列表
-		ArrayList<String> Unknown_File_List = new ArrayList<String>(); // 其他数据表文件列表
+		ArrayList<String> BC_File_List = new ArrayList<String>(); // 白细胞表文件列表
+		ArrayList<String> Test_File_List = new ArrayList<String>(); // 测试数据表文件列表
 		ArrayList<String> All_File_List = new ArrayList<String>(); // 所有文件列表
 		ArrayList<String> Upload_All_File_List = new ArrayList<String>(); // 需要上传的文件列表
 		ArrayList<String> File_List = new ArrayList<String>();
 		ArrayList<String> Plasma_Data_List = new ArrayList<String>(); // 血浆数据列表
 		ArrayList<String> Tissue_Data_List = new ArrayList<String>(); // 组织数据列表
-		ArrayList<String> Unknown_Data_List = new ArrayList<String>();// 其他数据列表
+		ArrayList<String> BC_Data_List = new ArrayList<String>(); // 白细胞数据列表
+		ArrayList<String> Test_Data_List = new ArrayList<String>();// 测试数据列表
 		ArrayList<String> Plasma_Porject_File_List = new ArrayList<String>(); // 血浆项目文件列表
 		ArrayList<String> Tissue_Porject_File_List = new ArrayList<String>(); // 组织项目文件列表
+		ArrayList<String> BC_Porject_File_List = new ArrayList<String>(); // 白细胞项目文件列表
 		ArrayList<String> All_File_Path = new ArrayList<String>(); // 所有WM。*。stat格式文件的路径列表
+		ArrayList<String> new_porjaect_data = new ArrayList<String>(); // 新项目数据列表
+		ArrayList<String> old_porjaect_data = new ArrayList<String>(); // 旧前项目数据列表
+		ArrayList<String> old_file_list = new ArrayList<String>(); // 旧文件列表
+		ArrayList<String> new_file_list = new ArrayList<String>(); // 新文件列表
+		ArrayList<String> updata_file_list = new ArrayList<String>(); // 被更新的文件列表
 
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 		String day = formatter.format(now_star.getTime()); // 格式化后的日期
 		String Plasma_cmd = "find " + Path + " -type f -name QA_run_info_*_Plasma_" + day + "*.xlsx";
 		String Tissue_cmd = "find " + Path + " -type f -name QA_run_info_*_Tissue_" + day + "*.xlsx";
-		String Unknown_cmd = "find " + Path + " -type f -name QA_run_info_*_Unknown_" + day + "*.xlsx";
+		String BC_cmd = "find " + Path + " -type f -name QA_run_info_*_BC_" + day + "*.xlsx";
+		String Test_cmd = "find " + Path + " -type f -name QA_run_info_*_Test_" + day + "*.xlsx";
+		String oldfile_cmd = "find " + old_file_dir + " -type f -name *.xlsx";
 
 		Plasma_File_List = Linux_Cmd(Plasma_cmd); // 调用linux命令获取血浆表文件列表
 		Tissue_File_List = Linux_Cmd(Tissue_cmd); // 调用linux命令获取组织表文件列表
-		Unknown_File_List = Linux_Cmd(Unknown_cmd); // 调用linux命令获取其他数据表文件列表
+		BC_File_List = Linux_Cmd(BC_cmd); // 调用linux命令获取白细胞表文件列表
+		Test_File_List = Linux_Cmd(Test_cmd); // 调用linux命令获取测试数据表文件列表
+		old_file_list = Linux_Cmd(oldfile_cmd); // 调用linux命令获取旧文件列表
 
-		// 血浆表
+		// 总血浆表
 		for (int i = 0; i < Plasma_File_List.size(); i++) {
 			readExcelData(new File(Plasma_File_List.get(i)), Plasma_Data_List);
 		}
-		if (Cover == 0) {
+		if (Cover == 1) {
+			old_porjaect_data.clear();
+			for (int i = 0; i < old_file_list.size(); i++) {
+				//System.out.println(old_file_list.get(i));
+				String old_File_name = "Plasma_All_";
+				if (new File(old_file_list.get(i)).getName().contains(old_File_name)) {
+					readExcelData(new File(old_file_list.get(i)), old_porjaect_data);
+					updata_file_list.add(old_file_list.get(i));
+					//System.out.println(old_file_list.get(i));
+					break;
+				}
+			}
+			if (old_porjaect_data.size() != 0) {
+				//System.out.println("******");
+				updataExcelData(new File(Plasma_File), Plasma_Data_List, old_porjaect_data);
+			}
+		} else {
 			// 新建文件，达到清空所有数据行的效果
 			createXlsx(new File(Plasma_File));
+			writeExcelData(new File(Plasma_File), Plasma_Data_List);
 		}
-		writeExcelData(new File(Plasma_File), Plasma_Data_List);
 		All_File_List.add(Plasma_File);
+		// 按项目分
+		new_file_list.clear();
 		for (int j = 0; j < Plasma_Data_List.size(); j++) {
 			String str_row[] = Plasma_Data_List.get(j).split("\t");
 			String porject_name[] = str_row[0].split("-");
@@ -130,26 +166,63 @@ public class DataAggregation
 			}
 			if (!(All_File_List.contains(This_Plasma_File))) {
 				All_File_List.add(This_Plasma_File);
+				new_file_list.add(This_Plasma_File);
 				Plasma_Porject_File_List.add(This_Plasma_File + "\t" + porject_name[0]);
-				if (Cover == 0) {
-					// 新建文件，达到清空所有数据行的效果
-					createXlsx(new File(This_Plasma_File));
-				}
+				// 新建文件，达到清空所有数据行的效果
+				createXlsx(new File(This_Plasma_File));
 			}
-			writeRowData(file, Plasma_Data_List.get(j));
+			writeRowData(file, Plasma_Data_List.get(j));	
+		}
+		if (Cover == 1) {
+			for (int i = 0; i < new_file_list.size(); i++) {
+				new_porjaect_data.clear();
+				old_porjaect_data.clear();
+				readExcelData(new File(new_file_list.get(i)), new_porjaect_data);
+				String porject_name[] = new File(new_file_list.get(i)).getName().split("_");
+				String Part_porject_name = porject_name[0] + "_" + porject_name[1] + "_";
+				for (int j = 0; j < old_file_list.size(); j++) {
+					if (new File(old_file_list.get(j)).getName().contains(Part_porject_name)) {
+						readExcelData(new File(old_file_list.get(j)), old_porjaect_data);
+						updata_file_list.add(old_file_list.get(j));
+						//System.out.println(old_file_list.get(j) + "=====" + new_file_list.get(i));
+						break;
+					}
+				}
+				if (old_porjaect_data.size() != 0) {
+					updataExcelData(new File(new_file_list.get(i)), new_porjaect_data, old_porjaect_data);
+				} else {
+					continue;
+				}
+			}			
 		}
 		System.out.println("血浆表已完成！");
 
-		// 组织表
+		// 总组织表
 		for (int i = 0; i < Tissue_File_List.size(); i++) {
 			readExcelData(new File(Tissue_File_List.get(i)), Tissue_Data_List);
 		}
-		if (Cover == 0) {
+		if (Cover == 1) {
+			old_porjaect_data.clear();
+			for (int i = 0; i < old_file_list.size(); i++) {
+				String old_File_name = "Tissue_All_";
+				if (new File(old_file_list.get(i)).getName().contains(old_File_name)) {
+					readExcelData(new File(old_file_list.get(i)), old_porjaect_data);
+					updata_file_list.add(old_file_list.get(i));
+					//System.out.println(old_file_list.get(i));
+					break;
+				}
+			}
+			if (old_porjaect_data.size() != 0) {
+				updataExcelData(new File(Tissue_File), Tissue_Data_List, old_porjaect_data);
+			}
+		} else {
 			// 新建文件，达到清空所有数据行的效果
 			createXlsx(new File(Tissue_File));
+			writeExcelData(new File(Tissue_File), Tissue_Data_List);			
 		}
-		writeExcelData(new File(Tissue_File), Tissue_Data_List);
 		All_File_List.add(Tissue_File);
+		// 按项目分
+		new_file_list.clear();
 		for (int j = 0; j < Tissue_Data_List.size(); j++) {
 			String str_row[] = Tissue_Data_List.get(j).split("\t");
 			String porject_name[] = str_row[0].split("-");
@@ -161,27 +234,129 @@ public class DataAggregation
 			}
 			if (!(All_File_List.contains(This_Tissue_File))) {
 				All_File_List.add(This_Tissue_File);
-				Tissue_Porject_File_List.add(This_Tissue_File + "\t" + porject_name[0]);
-				if (Cover == 0) {
-					// 新建文件，达到清空所有数据行的效果
-					createXlsx(new File(This_Tissue_File));
-				}
+				new_file_list.add(This_Tissue_File);
+				Tissue_Porject_File_List.add(This_Tissue_File + "\t" + porject_name[0]);				
+				// 新建文件，达到清空所有数据行的效果
+				createXlsx(new File(This_Tissue_File));
 			}
-			writeRowData(file, Tissue_Data_List.get(j));
+			writeRowData(file, Tissue_Data_List.get(j));			
+		}
+		if (Cover == 1) {
+			for (int i = 0; i < new_file_list.size(); i++) {
+				new_porjaect_data.clear();
+				old_porjaect_data.clear();
+				readExcelData(new File(new_file_list.get(i)), new_porjaect_data);
+				String porject_name[] = new File(new_file_list.get(i)).getName().split("_");
+				String Part_porject_name = porject_name[0] + "_" + porject_name[1] + "_";
+				for (int j = 0; j < old_file_list.size(); j++) {
+					if (new File(old_file_list.get(j)).getName().contains(Part_porject_name)) {
+						readExcelData(new File(old_file_list.get(j)), old_porjaect_data);
+						updata_file_list.add(old_file_list.get(j));
+						//System.out.println(old_file_list.get(j) + "=====" + new_file_list.get(i));
+						break;
+					}
+				}
+				if (old_porjaect_data.size() != 0) {
+					updataExcelData(new File(new_file_list.get(i)), new_porjaect_data, old_porjaect_data);
+				} else {
+					continue;
+				}
+			}			
 		}
 		System.out.println("组织表已完成！");
-
-		// 其他数据表
-		for (int i = 0; i < Unknown_File_List.size(); i++) {
-			readExcelData(new File(Unknown_File_List.get(i)), Unknown_Data_List);
+		
+		// 总白细胞表
+		for (int i = 0; i < BC_File_List.size(); i++) {
+			readExcelData(new File(BC_File_List.get(i)), BC_Data_List);
 		}
-		if (Cover == 0) {
+		if (Cover == 1) {
+			old_porjaect_data.clear();
+			for (int i = 0; i < old_file_list.size(); i++) {
+				String old_File_name = "BC_All_";
+				if (new File(old_file_list.get(i)).getName().contains(old_File_name)) {
+					readExcelData(new File(old_file_list.get(i)), old_porjaect_data);
+					updata_file_list.add(old_file_list.get(i));
+					//System.out.println(old_file_list.get(i));
+					break;
+				}
+			}
+			if (old_porjaect_data.size() != 0) {
+				updataExcelData(new File(BC_File), BC_Data_List, old_porjaect_data);
+			}
+		} else {
 			// 新建文件，达到清空所有数据行的效果
-			createXlsx(new File(Unknown_File));
+			createXlsx(new File(BC_File));
+			writeExcelData(new File(BC_File), BC_Data_List);			
 		}
-		writeExcelData(new File(Unknown_File), Unknown_Data_List);
-		All_File_List.add(Unknown_File);
-		System.out.println("其他数据表已完成！");
+		All_File_List.add(BC_File);
+		// 按项目分
+		new_file_list.clear();
+		for (int j = 0; j < BC_Data_List.size(); j++) {
+			String str_row[] = BC_Data_List.get(j).split("\t");
+			String porject_name[] = str_row[0].split("-");
+			String This_BC_File = dir + "/" + "BC_" + porject_name[0] + "_" + Day + ".xlsx";
+			File file = new File(This_BC_File);
+			// 如果文件不存在，则创建
+			if (!file.exists() && !file.isFile()) {
+				createXlsx(file);
+			}
+			if (!(All_File_List.contains(This_BC_File))) {
+				All_File_List.add(This_BC_File);
+				new_file_list.add(This_BC_File);
+				BC_Porject_File_List.add(This_BC_File + "\t" + porject_name[0]);				
+				// 新建文件，达到清空所有数据行的效果
+				createXlsx(new File(This_BC_File));
+			}
+			writeRowData(file, BC_Data_List.get(j));			
+		}
+		if (Cover == 1) {
+			for (int i = 0; i < new_file_list.size(); i++) {
+				new_porjaect_data.clear();
+				old_porjaect_data.clear();
+				readExcelData(new File(new_file_list.get(i)), new_porjaect_data);
+				String porject_name[] = new File(new_file_list.get(i)).getName().split("_");
+				String Part_porject_name = porject_name[0] + "_" + porject_name[1] + "_";
+				for (int j = 0; j < old_file_list.size(); j++) {
+					if (new File(old_file_list.get(j)).getName().contains(Part_porject_name)) {
+						readExcelData(new File(old_file_list.get(j)), old_porjaect_data);
+						updata_file_list.add(old_file_list.get(j));
+						//System.out.println(old_file_list.get(j) + "=====" + new_file_list.get(i));
+						break;
+					}
+				}
+				if (old_porjaect_data.size() != 0) {
+					updataExcelData(new File(new_file_list.get(i)), new_porjaect_data, old_porjaect_data);
+				} else {
+					continue;
+				}
+			}			
+		}
+		System.out.println("白细胞表已完成！");
+
+		// 测试数据表
+		for (int i = 0; i < Test_File_List.size(); i++) {
+			readExcelData(new File(Test_File_List.get(i)), Test_Data_List);
+		}
+		if (Cover == 1) {
+			old_porjaect_data.clear();
+			for (int i = 0; i < old_file_list.size(); i++) {
+				String old_File_name = "Test_All_";
+				if (new File(old_file_list.get(i)).getName().contains(old_File_name)) {
+					readExcelData(new File(old_file_list.get(i)), old_porjaect_data);
+					updata_file_list.add(old_file_list.get(i));
+					break;
+				}
+			}
+			if (old_porjaect_data.size() != 0) {
+				updataExcelData(new File(Test_File), Test_Data_List, old_porjaect_data);
+			}
+		} else {
+			// 新建文件，达到清空所有数据行的效果
+			createXlsx(new File(Test_File));
+			writeExcelData(new File(Test_File), Test_Data_List);			
+		}
+		All_File_List.add(Test_File);
+		System.out.println("测试数据表已完成！");
 
 		for (int i = 0; i < All_File_List.size(); i++) {
 			// System.out.println(All_File_List.get(i));
@@ -191,9 +366,29 @@ public class DataAggregation
 			rewriteExcelData(new File(All_File_List.get(i))); // 去除重复行
 			writeToTsv(All_File_List.get(i)); // 写成tsv格式文件
 		}
+		
+		// 把该次未更新的旧表复制过去，命名保留
+		for (int i = 0; i < old_file_list.size(); i++) {
+			if (updata_file_list.contains(old_file_list.get(i))) {
+				continue;
+			} else {
+				String cmd2 = "cp " + old_file_list.get(i) + " " + dir + "/";
+				try {
+					Process process2 = Runtime.getRuntime().exec(cmd2);
+					BufferedReader input2 = new BufferedReader(new InputStreamReader(process2.getInputStream()));
+					String line2 = null;
+					while ((line2 = input2.readLine()) != null) { // 循环读出系统返回数据，保证系统调用已经正常结束
+						// System.out.println(line);
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 
 		// 决定上传的文件列表
-		String findfile_cmd = "find " + dir + " -type f -name *" + Day + "*.xlsx";
+		String findfile_cmd = "find " + dir + " -type f -name *.xlsx";
 		Upload_All_File_List = Linux_Cmd(findfile_cmd);
 		if (Uploadtag == 1) {
 			File_List = All_File_List;
@@ -234,6 +429,33 @@ public class DataAggregation
 			String OutPutfile = dir + "/" + "Tissue_" + Str_Tissue_Porject[1] + "_" + Day + "_WM" + ".stat";
 			All_File_Path.clear();
 			All_File_Path = WMstat_File_Path(Str_Tissue_Porject[0]);
+			if (All_File_Path.size() != 0) {
+				String cmd[] = new String[All_File_Path.size() + 2];
+				cmd[0] = "/home/jiacheng_chuan/Ironman/IRONMAN3/ComethylationParser/tag_paste_for_logcpm_for_zhirong.sh";
+				cmd[1] = OutPutfile;
+				for (int t = 0; t < All_File_Path.size(); t++) {
+					cmd[t + 2] = All_File_Path.get(t);
+				}
+				try {
+					Process process = Runtime.getRuntime().exec(cmd);
+					BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+					String line = null;
+					while ((line = input.readLine()) != null) {
+					} // 循环读出系统调用返回值，保证脚本调用正常完成
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// Upload_All_File_List.add(OutPutfile);
+			}
+		}
+		
+		// 生成白细胞项目汇总矩阵
+		for (int i = 0; i < BC_Porject_File_List.size(); i++) {
+			String Str_BC_Porject[] = BC_Porject_File_List.get(i).split("\t");
+			String OutPutfile = dir + "/" + "BC_" + Str_BC_Porject[1] + "_" + Day + "_WM" + ".stat";
+			All_File_Path.clear();
+			All_File_Path = WMstat_File_Path(Str_BC_Porject[0]);
 			if (All_File_Path.size() != 0) {
 				String cmd[] = new String[All_File_Path.size() + 2];
 				cmd[0] = "/home/jiacheng_chuan/Ironman/IRONMAN3/ComethylationParser/tag_paste_for_logcpm_for_zhirong.sh";
@@ -410,12 +632,8 @@ public class DataAggregation
 				if (i < 4) { // 实验表格的 "Sample ID" ～ "Sequencing info"：红字橘底
 					cell.setCellValue(str_head_row0[i]);
 					cell.setCellStyle(cellStyle2);
-				} else if (i == str_head_row0.length - 11 || i == str_head_row0.length - 10) { // "Path
-																								// to
-																								// sorted.deduped.bam"、"Date
-																								// of
-																								// path
-																								// update"：黑字黄底。
+				} else if (i == str_head_row0.length - 11 || i == str_head_row0.length - 10) {
+					// "Path to sorted.deduped.bam"、"Date of path update"：黑字黄底。
 					cell.setCellStyle(cellStyle5);
 					cell.setCellValue(str_head_row0[i]);
 				} else { // 剩下的生信表格的列：黑字蓝底
@@ -561,6 +779,128 @@ public class DataAggregation
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * 更新Excel表文件数据
+	 * 
+	 * @param file
+	 * @param Data_list
+	 */
+	public static void updataExcelData(File file, ArrayList<String> new_data, ArrayList<String> old_data)
+	{
+		//ArrayList<String> old_data = new ArrayList<String>();
+		ArrayList<String> updata_data = new ArrayList<String>();
+		// 对比新旧数据
+		for (int j = 0; j < new_data.size(); j++) {
+			String str_new[] = new_data.get(j).split("\t");
+			int log4 = 0;
+			for (int i = 0; i < old_data.size(); i++) {
+				int log1 = 0;
+				int log2 = 0;
+				int log3 = 0;
+				String str_old[] = old_data.get(i).split("\t");
+				for (int k = 0; k < str_old.length; k++) {
+					if (k == 27) {
+						log2 = 1;
+						break;
+					} else {
+						if (str_old[k].equals(str_new[k])) {
+							log4 = 1;
+							//System.out.println(str_old[k] + "==/////==" + str_new[k]);
+							continue;
+						} else {
+							if (str_old[k].equals("NA")) {
+								//System.out.println(str_old[k] + "==*****==" + str_new[k]);
+								str_old[k] = str_new[k];
+								log3 = 1;
+								//System.out.println(str_old[k] + "==||||||||||||||==" + str_new[k]);
+								continue;
+							} else if (str_new[k].equals("NA")) {
+								//System.out.println(str_old[k] + "===" + str_new[k]);
+								continue;
+							} else {
+								if (k > 1) {
+									log1 = 1;
+								}
+								break;
+							}
+						}
+					}
+				}
+				if (log1 == 1) {
+					if (!updata_data.contains(old_data.get(i))) {
+						updata_data.add(old_data.get(i));
+					}
+					if (!updata_data.contains(new_data.get(j))) {
+						updata_data.add(new_data.get(j));
+					}
+					continue;
+				}
+				if (log2 == 1) {
+					//System.out.println("log2 == 1 ");
+					if (log3 == 1) {
+						//System.out.println("log3 == 1 ");
+						String data = null;
+						for (int x = 0; x < str_old.length; x++) {
+							if (x == 0) {
+								data = str_old[x];
+							} else {
+								data += "\t" + str_old[x];
+							}
+						}
+						//System.out.println("data ==== " + data);
+						//System.out.println("/////////////////////////");
+						if (!updata_data.contains(data)) {
+							updata_data.add(data);
+						}
+					} else {
+						if (!updata_data.contains(old_data.get(i))) {
+							updata_data.add(old_data.get(i));
+						}
+					}
+					continue;
+				}
+			}
+			if (log4 == 0) {
+				if (!updata_data.contains(new_data.get(j))) {
+					updata_data.add(new_data.get(j));
+				}
+			}
+		}			
+		createXlsx(file); // 创建新的文件，达到清除数据效果		
+		try {
+			FileInputStream is = new FileInputStream(file);
+			XSSFWorkbook workbook = new XSSFWorkbook(is);
+			XSSFSheet sheet = workbook.getSheetAt(0); // 获取第1个工作薄
+			// 写回数据
+			for (int j = 0; j < updata_data.size(); j++) {			
+				XSSFRow row = sheet.createRow((short) sheet.getLastRowNum() + 1);
+				String str_row[] = updata_data.get(j).split("\t");
+				for (int i = 0; i < str_row.length; i++) {
+					// 在索引0的位置创建单元格（左上端）
+					XSSFCell cell = row.createCell(i);
+					if (str_row[i].equals("null")) {
+						cell.setCellValue("");
+					} else {
+						cell.setCellValue(str_row[i]);
+					}
+				}
+			}
+			// 新建一输出文件流
+			FileOutputStream fOut = new FileOutputStream(file);
+			// 把相应的Excel 工作簿存盘
+			workbook.write(fOut);
+			fOut.flush();
+			// 操作结束，关闭文件
+			fOut.close();
+			is.close();
+			workbook.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 
 	/**
 	 * 写一行数据到Excel表文件
@@ -852,7 +1192,7 @@ public class DataAggregation
 				return -1;
 			} else {
 				System.out.println();
-				System.out.println("ssh过程中第" + x +"拋出异常，但程序正在尝试自动修复！ ");
+				System.out.println("ssh过程中第" + x +"次拋出异常，但程序正在尝试自动修复！ ");
 				continue;
 			}		
 		}
