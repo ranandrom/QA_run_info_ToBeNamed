@@ -27,6 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+
 /**
  * <br/>
  * Function: This class is Thread class. <br/>
@@ -104,7 +105,7 @@ public class SubThread extends Thread
 							createXlsx(Test_excel); // 测试的数据表
 
 							calculatedData(Plasma_Excel, Tissue_Excel, BC_Excel, Test_Excel, Plasma_Tsv, Tissue_Tsv, BC_Tsv,
-									Test_Tsv, Path);
+									Test_Tsv, Path, Por_name);
 						} else {
 							continue;
 						}
@@ -141,7 +142,7 @@ public class SubThread extends Thread
 			createXlsx(BC_excel); // 创建测试表
 			createXlsx(Test_excel); // 测试的数据表
 
-			calculatedData(Plasma_Excel, Tissue_Excel, BC_Excel, Test_Excel, Plasma_Tsv, Tissue_Tsv, BC_Tsv, Test_Tsv, Path);
+			calculatedData(Plasma_Excel, Tissue_Excel, BC_Excel, Test_Excel, Plasma_Tsv, Tissue_Tsv, BC_Tsv, Test_Tsv, Path, Por_name);
 		}
 	}
 
@@ -183,6 +184,12 @@ public class SubThread extends Thread
 					+ "C methylated in CpG context" + "\t" + "QC result" + "\t" + "Date of QC" + "\t"
 					+ "Path to sorted.deduped.bam" + "\t" + "Date of path update" + "\t" + "Bait set" + "\t"
 					+ "log2(CPM+1)" + "\t" + "Sample QC" + "\t" + "Failed QC Detail" + "\t" + "Warning QC Detail" + "\t"
+					+ "flagstat.xls(Mapping%)" + "\t" + "Pre-lib name*sorted.deduplicated.bam.perTarget.coverage(Uniformity (0.2X mean))" + "\t"
+					+ "Pre-lib name*sorted.deduplicated.bam.hsmetrics.txt(Deduped mean bait coverage; Deduped mean target coverage; % target bases > 30X)" + "\t"
+					+ "Pre-lib name*sorted.deduplicated.bam.insertSize.txt(Mean_insert_size; Median_insert_size)" + "\t"
+					+ "Pre-lib name*sorted.bam.hsmetrics.txt(Total PF reads; On target%; Pre-dedup mean bait coverage; Bait set)" + "\t"
+					+ "Pre-lib name*PE_report.txt(C methylated in CHG context; C methylated in CHH context; C methylated in CpG context)" + "\t"
+					+ "Pre-lib name*hsmetrics.QC.xls*(QC result; Date of QC; Date of path update)" + "\t"
 					+ "Check" + "\t" + "Note1" + "\t" + "Note2" + "\t" + "Note3";
 
 			// 1、创建字体，设置其为红色：
@@ -282,12 +289,7 @@ public class SubThread extends Thread
 				if (i < 4) { // 实验表格的 "Sample ID" ～ "Sequencing info"：红字橘底
 					cell.setCellValue(str_head_row0[i]);
 					cell.setCellStyle(cellStyle2);
-				} else if (i == str_head_row0.length - 11 || i == str_head_row0.length - 10) { // "Path
-																								// to
-																								// sorted.deduped.bam"、"Date
-																								// of
-																								// path
-																								// update"：黑字黄底。
+				} else if (str_head_row0[i].equals("Path to sorted.deduped.bam") || str_head_row0[i].equals("Date of path update")) { // "Path to sorted.deduped.bam"、"Date of path update"：黑字黄底。
 					cell.setCellStyle(cellStyle5);
 					cell.setCellValue(str_head_row0[i]);
 				} else { // 剩下的生信表格的列：黑字蓝底
@@ -497,7 +499,7 @@ public class SubThread extends Thread
 	 * @param End
 	 * @return List
 	 */
-	public static ArrayList<String> Find_flagstat_xls(String Path, String Start, String End)
+	public static ArrayList<String> Find_flagstat_xls(String Path, String Start, String End, ArrayList<String> filelist)
 	{
 		ArrayList<String> Data_list = new ArrayList<String>();
 		String line = null;
@@ -516,6 +518,7 @@ public class SubThread extends Thread
 					System.out.println("链接文件：" + line);
 					continue;
 				} else {
+					filelist.add(line);
 					String encoding = "GBK";
 					InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding); // 考虑到编码格式
 					BufferedReader bufferedReader = new BufferedReader(read);
@@ -561,6 +564,7 @@ public class SubThread extends Thread
 				BufferedReader input1 = new BufferedReader(new InputStreamReader(process1.getInputStream()));
 				int i = 0;
 				while ((line = input1.readLine()) != null) {
+					filelist.add(line);
 					String[] cmd4 = { "awk", "NR==5 {print $5 }", line };
 					data = Linux_Cmd(cmd4);
 					Data_list.add(data);
@@ -924,6 +928,28 @@ public class SubThread extends Thread
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * 获取文件的md5和文件绝对路径名
+	 * @param file
+	 * @return
+	 */
+	public static String md5sum(String file)
+	{
+		String cmd = "md5sum " + file;
+		String data = null;
+		try {
+			Process process = Runtime.getRuntime().exec(cmd);
+			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line = null;
+			while ((line = input.readLine()) != null) {
+				data = line;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
 
 	/**
 	 * 对每一列的数据计算并生产输出文件的方法。
@@ -937,7 +963,7 @@ public class SubThread extends Thread
 	 * @param Input
 	 */
 	public static void calculatedData(String Plasma_Excel, String Tissue_Excel, String BC_Excel, String Test_Excel, String Plasma_Tsv,
-			String Tissue_Tsv, String BC_Tsv, String Test_Tsv, String Input)
+			String Tissue_Tsv, String BC_Tsv, String Test_Tsv, String Input, String Por_name)
 	{
 		String data = null;
 		File Plasma_File = new File(Plasma_Excel);
@@ -1020,7 +1046,7 @@ public class SubThread extends Thread
 				String InputArr[] = Input.split("/");
 				String cmd1 = null;
 				if (InputArr.length < 3) {
-					cmd1 = "find " + Input + "/" + Sequencing_Info + " -name " + ID_dataArr[0] + "*";
+					cmd1 = "find " + Input + "/" + Sequencing_Info + "/" + Por_name + " -name " + ID_dataArr[0] + "*";
 				} else {
 					cmd1 = "find " + Input + " -name " + ID_dataArr[0] + "*";
 				}
@@ -1030,32 +1056,57 @@ public class SubThread extends Thread
 				while ((line1 = input1.readLine()) != null) {
 					if (line1.endsWith("sorted.deduplicated.bam.perTarget.coverage")) {
 						deduped_cvg = line1;
+						map_logo.put("Pre-lib name*sorted.deduplicated.bam.perTarget.coverage(Uniformity (0.2X mean))", md5sum(deduped_cvg));
 						tag++;
 					} else if (line1.endsWith("sorted.deduplicated.bam.hsmetrics.txt")) {
 						deduped_hsmetrics = line1;
+						map_logo.put("Pre-lib name*sorted.deduplicated.bam.hsmetrics.txt(Deduped mean bait coverage; Deduped mean target coverage; % target bases > 30X)", md5sum(deduped_hsmetrics));
 						tag++;
 					} else if (line1.endsWith("sorted.deduplicated.bam.insertSize.txt")) {
 						deduped_insertSize = line1;
+						map_logo.put("Pre-lib name*sorted.deduplicated.bam.insertSize.txt(Mean_insert_size; Median_insert_size)", md5sum(deduped_insertSize));
 						tag++;
 					} else if (line1.endsWith("sorted.bam.hsmetrics.txt")) {
 						origin_hsmetrics = line1;
+						map_logo.put("Pre-lib name*sorted.bam.hsmetrics.txt(Total PF reads; On target%; Pre-dedup mean bait coverage; Bait set)", md5sum(origin_hsmetrics));
 						tag++;
 					} else if (line1.endsWith("PE_report.txt")) {
 						bisulfite = line1;
+						map_logo.put("Pre-lib name*PE_report.txt(C methylated in CHG context; C methylated in CHH context; C methylated in CpG context)", md5sum(bisulfite));
 						tag++;
 					} else if (line1.endsWith("hsmetrics.QC.xls") || line1.endsWith("hsmetrics.QC.xlsx")) {
 						QC_result = line1;
+						map_logo.put("Pre-lib name*hsmetrics.QC.xls*(QC result; Date of QC; Date of path update)", md5sum(QC_result));
 						tag++;
-					} else if (line1.endsWith("gz_bismark_bt2_pe.sorted.deduplicated.bam")) {
+					} else if (line1.endsWith("sorted.deduplicated.bam")) {
 						deduped_bam = line1;
 						tag++;
 					} else {
 						continue;
 					}
 				}
+				if (deduped_cvg == null) {
+					map_logo.put("Pre-lib name*sorted.deduplicated.bam.perTarget.coverage(Uniformity (0.2X mean))", "NA");
+				}
+				if (deduped_hsmetrics == null) {
+					map_logo.put("Pre-lib name*sorted.deduplicated.bam.hsmetrics.txt(Deduped mean bait coverage; Deduped mean target coverage; % target bases > 30X)", "NA");
+				}
+				if (deduped_insertSize == null) {
+					map_logo.put("Pre-lib name*sorted.deduplicated.bam.insertSize.txt(Mean_insert_size; Median_insert_size)", "NA");
+				}
+				if (origin_hsmetrics == null) {
+					map_logo.put("Pre-lib name*sorted.bam.hsmetrics.txt(Total PF reads; On target%; Pre-dedup mean bait coverage; Bait set)", "NA");
+				}
+				if (bisulfite == null) {
+					map_logo.put("Pre-lib name*PE_report.txt(C methylated in CHG context; C methylated in CHH context; C methylated in CpG context)", "NA");
+				}
+				if (QC_result == null) {
+					map_logo.put("Pre-lib name*hsmetrics.QC.xls*(QC result; Date of QC; Date of path update)", "NA");
+				}			
 				if (tag == 0) {
 					continue;
 				}
+				
 				String Map = null;
 				String PF = null;
 				String OnTarget = null;
@@ -1071,18 +1122,57 @@ public class SubThread extends Thread
 				data = null;
 				String Start = ID_dataArr[0];
 				String End = "sorted.bam";
+				String flagstat = null;
 				int tar = 0;
-				ArrayList<String> data4 = Find_flagstat_xls(Input, Start, End);
+				ArrayList<String> filelist = new ArrayList<String>();
+				filelist.clear();
+				ArrayList<String> data4 = Find_flagstat_xls(Input, Start, End, filelist);
+				if (filelist.size() == 0) {
+					map_logo.put("flagstat.xls(Mapping%)", "NA");
+				} else {
+					if (filelist.size() == 1) {
+						flagstat = md5sum(filelist.get(0));
+					} else {
+						for (int x = 0; x < filelist.size(); x++) {
+							if (x == 0) {
+								flagstat = md5sum(filelist.get(x));
+								continue;
+							}
+							flagstat += " || " + md5sum(filelist.get(x));
+						}
+					}
+					map_logo.put("flagstat.xls(Mapping%)", flagstat);
+				}
 				for (int x = 0; x < data4.size(); x++) {
 					if (x == 0) {
 						if (!(data4.get(x).equals("NA"))) {
-							data = data4.get(x);
-							tar++;
+							if ((data4.get(x).equals("%"))){
+								//System.out.println("data4.get(x) = " + data4.get(x) + "  " + x);
+								continue;
+							} else {
+								data = data4.get(x);
+								tar++;
+							}
+						}
+					} else if (data != null) {
+						if (!(data4.get(x).equals("NA"))) {
+							if ((data4.get(x).equals("%"))){
+								//System.out.println("data4.get(x) = " + data4.get(x) + "  " + x + "data = " +data);
+								continue;
+							} else {
+								data += "__" + data4.get(x);
+								tar++;
+							}
 						}
 					} else {
 						if (!(data4.get(x).equals("NA"))) {
-							data += "__" + data4.get(x);
-							tar++;
+							if ((data4.get(x).equals("%"))){
+								//System.out.println("data4.get(x) = " + data4.get(x) + "  " + x);
+								continue;
+							} else {
+								data = data4.get(x);
+								tar++;
+							}
 						}
 					}
 				}
@@ -1342,8 +1432,15 @@ public class SubThread extends Thread
 				}
 
 				// 向数据结果集合添加log2(CPM+1)的值
-				data = null;
-				String cmd23 = "find " + Input + " -name " + ID_dataArr[0] + "*.WM.*.stat";
+				data = null;				
+				//String InputArr[] = Input.split("/");
+				String cmd23 = null;
+				if (InputArr.length < 3) {
+					cmd23 = "find " + Input + "/" + Sequencing_Info + "/" + Por_name + " -name " + ID_dataArr[0] + "*.WM.*.stat";
+				} else {
+					cmd23 = "find " + Input + " -name " + ID_dataArr[0] + "*.WM.*.stat";
+				}				
+				//String cmd23 = "find " + Input + " -name " + ID_dataArr[0] + "*.WM.*.stat";
 				Process process23 = Runtime.getRuntime().exec(cmd23);
 				BufferedReader input23 = new BufferedReader(new InputStreamReader(process23.getInputStream()));
 				String line23 = null;

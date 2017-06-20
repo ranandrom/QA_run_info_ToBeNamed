@@ -136,7 +136,7 @@ public class DataAggregation
 			for (int i = 0; i < old_file_list.size(); i++) {
 				//System.out.println(old_file_list.get(i));
 				String old_File_name = "Plasma_All_";
-				if (new File(old_file_list.get(i)).getName().contains(old_File_name)) {
+				if (new File(old_file_list.get(i)).getName().startsWith(old_File_name)) {
 					readExcelData(new File(old_file_list.get(i)), old_porjaect_data);
 					updata_file_list.add(old_file_list.get(i));
 					//System.out.println(old_file_list.get(i));
@@ -181,7 +181,7 @@ public class DataAggregation
 				String porject_name[] = new File(new_file_list.get(i)).getName().split("_");
 				String Part_porject_name = porject_name[0] + "_" + porject_name[1] + "_";
 				for (int j = 0; j < old_file_list.size(); j++) {
-					if (new File(old_file_list.get(j)).getName().contains(Part_porject_name)) {
+					if (new File(old_file_list.get(j)).getName().startsWith(Part_porject_name)) {
 						readExcelData(new File(old_file_list.get(j)), old_porjaect_data);
 						updata_file_list.add(old_file_list.get(j));
 						//System.out.println(old_file_list.get(j) + "=====" + new_file_list.get(i));
@@ -205,7 +205,7 @@ public class DataAggregation
 			old_porjaect_data.clear();
 			for (int i = 0; i < old_file_list.size(); i++) {
 				String old_File_name = "Tissue_All_";
-				if (new File(old_file_list.get(i)).getName().contains(old_File_name)) {
+				if (new File(old_file_list.get(i)).getName().startsWith(old_File_name)) {
 					readExcelData(new File(old_file_list.get(i)), old_porjaect_data);
 					updata_file_list.add(old_file_list.get(i));
 					//System.out.println(old_file_list.get(i));
@@ -249,7 +249,7 @@ public class DataAggregation
 				String porject_name[] = new File(new_file_list.get(i)).getName().split("_");
 				String Part_porject_name = porject_name[0] + "_" + porject_name[1] + "_";
 				for (int j = 0; j < old_file_list.size(); j++) {
-					if (new File(old_file_list.get(j)).getName().contains(Part_porject_name)) {
+					if (new File(old_file_list.get(j)).getName().startsWith(Part_porject_name)) {
 						readExcelData(new File(old_file_list.get(j)), old_porjaect_data);
 						updata_file_list.add(old_file_list.get(j));
 						//System.out.println(old_file_list.get(j) + "=====" + new_file_list.get(i));
@@ -273,7 +273,7 @@ public class DataAggregation
 			old_porjaect_data.clear();
 			for (int i = 0; i < old_file_list.size(); i++) {
 				String old_File_name = "BC_All_";
-				if (new File(old_file_list.get(i)).getName().contains(old_File_name)) {
+				if (new File(old_file_list.get(i)).getName().startsWith(old_File_name)) {
 					readExcelData(new File(old_file_list.get(i)), old_porjaect_data);
 					updata_file_list.add(old_file_list.get(i));
 					//System.out.println(old_file_list.get(i));
@@ -317,7 +317,7 @@ public class DataAggregation
 				String porject_name[] = new File(new_file_list.get(i)).getName().split("_");
 				String Part_porject_name = porject_name[0] + "_" + porject_name[1] + "_";
 				for (int j = 0; j < old_file_list.size(); j++) {
-					if (new File(old_file_list.get(j)).getName().contains(Part_porject_name)) {
+					if (new File(old_file_list.get(j)).getName().startsWith(Part_porject_name)) {
 						readExcelData(new File(old_file_list.get(j)), old_porjaect_data);
 						updata_file_list.add(old_file_list.get(j));
 						//System.out.println(old_file_list.get(j) + "=====" + new_file_list.get(i));
@@ -341,7 +341,7 @@ public class DataAggregation
 			old_porjaect_data.clear();
 			for (int i = 0; i < old_file_list.size(); i++) {
 				String old_File_name = "Test_All_";
-				if (new File(old_file_list.get(i)).getName().contains(old_File_name)) {
+				if (new File(old_file_list.get(i)).getName().startsWith(old_File_name)) {
 					readExcelData(new File(old_file_list.get(i)), old_porjaect_data);
 					updata_file_list.add(old_file_list.get(i));
 					break;
@@ -533,6 +533,12 @@ public class DataAggregation
 					+ "C methylated in CpG context" + "\t" + "QC result" + "\t" + "Date of QC" + "\t"
 					+ "Path to sorted.deduped.bam" + "\t" + "Date of path update" + "\t" + "Bait set" + "\t"
 					+ "log2(CPM+1)" + "\t" + "Sample QC" + "\t" + "Failed QC Detail" + "\t" + "Warning QC Detail" + "\t"
+					+ "flagstat.xls(Mapping%)" + "\t" + "Pre-lib name*sorted.deduplicated.bam.perTarget.coverage(Uniformity (0.2X mean))" + "\t"
+					+ "Pre-lib name*sorted.deduplicated.bam.hsmetrics.txt(Deduped mean bait coverage; Deduped mean target coverage; % target bases > 30X)" + "\t"
+					+ "Pre-lib name*sorted.deduplicated.bam.insertSize.txt(Mean_insert_size; Median_insert_size)" + "\t"
+					+ "Pre-lib name*sorted.bam.hsmetrics.txt(Total PF reads; On target%; Pre-dedup mean bait coverage; Bait set)" + "\t"
+					+ "Pre-lib name*PE_report.txt(C methylated in CHG context; C methylated in CHH context; C methylated in CpG context)" + "\t"
+					+ "Pre-lib name*hsmetrics.QC.xls*(QC result; Date of QC; Date of path update)" + "\t"
 					+ "Check" + "\t" + "Note1" + "\t" + "Note2" + "\t" + "Note3";
 
 			// 1、创建字体，设置其为红色：
@@ -632,7 +638,7 @@ public class DataAggregation
 				if (i < 4) { // 实验表格的 "Sample ID" ～ "Sequencing info"：红字橘底
 					cell.setCellValue(str_head_row0[i]);
 					cell.setCellStyle(cellStyle2);
-				} else if (i == str_head_row0.length - 11 || i == str_head_row0.length - 10) {
+				} else if (str_head_row0[i].equals("Path to sorted.deduped.bam") || str_head_row0[i].equals("Date of path update")) {
 					// "Path to sorted.deduped.bam"、"Date of path update"：黑字黄底。
 					cell.setCellStyle(cellStyle5);
 					cell.setCellValue(str_head_row0[i]);
@@ -690,52 +696,57 @@ public class DataAggregation
 	{
 		String TemplateData = null;
 		String data = null;
-		try {
-			FileInputStream is = new FileInputStream(file);
-			XSSFWorkbook wb = new XSSFWorkbook(is);
-			XSSFSheet sheet = wb.getSheetAt(0); // 获取第1个工作薄
-
-			XSSFRow xssfrow0 = sheet.getRow(0);
-			for (int j = xssfrow0.getFirstCellNum(); j < xssfrow0.getLastCellNum(); j++) {
-				if (j == xssfrow0.getFirstCellNum()) {
-					TemplateData = "null";
-				} else {
-					TemplateData += "\t" + "null";
+		if (file.getName().startsWith("._") || file.getName().startsWith("~$")) {
+			System.out.println("无效文件： " + file.getParent() + "/" + file.getName());
+			return;
+		} else {
+			try {
+				FileInputStream is = new FileInputStream(file);
+				XSSFWorkbook wb = new XSSFWorkbook(is);
+				XSSFSheet sheet = wb.getSheetAt(0); // 获取第1个工作薄
+	
+				XSSFRow xssfrow0 = sheet.getRow(0);
+				for (int j = xssfrow0.getFirstCellNum(); j < xssfrow0.getLastCellNum(); j++) {
+					if (j == xssfrow0.getFirstCellNum()) {
+						TemplateData = "null";
+					} else {
+						TemplateData += "\t" + "null";
+					}
 				}
-			}
-			// 获取当前工作薄的每一行
-			for (int i = sheet.getFirstRowNum() + 1; i <= sheet.getLastRowNum(); i++) {
-				String TemplateArr[] = TemplateData.split("\t");
-				XSSFRow xssfrow = sheet.getRow(i);
-				// 获取当前工作薄的每一列
-				for (int j = xssfrow.getFirstCellNum(); j < xssfrow.getLastCellNum(); j++) {
-					XSSFCell xssfcell = xssfrow.getCell(j);
-					if (xssfcell == null || (("") == String.valueOf(xssfcell)) || xssfcell.toString().equals("")
-							|| xssfcell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+				// 获取当前工作薄的每一行
+				for (int i = sheet.getFirstRowNum() + 1; i <= sheet.getLastRowNum(); i++) {
+					String TemplateArr[] = TemplateData.split("\t");
+					XSSFRow xssfrow = sheet.getRow(i);
+					// 获取当前工作薄的每一列
+					for (int j = xssfrow.getFirstCellNum(); j < xssfrow.getLastCellNum(); j++) {
+						XSSFCell xssfcell = xssfrow.getCell(j);
+						if (xssfcell == null || (("") == String.valueOf(xssfcell)) || xssfcell.toString().equals("")
+								|| xssfcell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+							continue;
+						} else {
+							String cellValue = String.valueOf(xssfcell);
+							TemplateArr[j] = cellValue;
+						}
+					}
+					for (int x = 0; x < TemplateArr.length; x++) {
+						if (x == 0) {
+							data = TemplateArr[x];
+						} else {
+							data += "\t" + TemplateArr[x];
+						}
+					}
+					if (Data_list.contains(data)) {
 						continue;
 					} else {
-						String cellValue = String.valueOf(xssfcell);
-						TemplateArr[j] = cellValue;
+						Data_list.add(data);
 					}
 				}
-				for (int x = 0; x < TemplateArr.length; x++) {
-					if (x == 0) {
-						data = TemplateArr[x];
-					} else {
-						data += "\t" + TemplateArr[x];
-					}
-				}
-				if (Data_list.contains(data)) {
-					continue;
-				} else {
-					Data_list.add(data);
-				}
+				is.close();
+				wb.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			is.close();
-			wb.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
@@ -800,9 +811,12 @@ public class DataAggregation
 				int log3 = 0;
 				String str_old[] = old_data.get(i).split("\t");
 				for (int k = 0; k < str_old.length; k++) {
-					if (k == 27) {
+					if (k == 34) {
 						log2 = 1;
 						break;
+					} else if (k > 26) {
+						str_old[k] = str_new[k];
+						log3 = 1;
 					} else {
 						if (str_old[k].equals(str_new[k])) {
 							log4 = 1;
@@ -819,7 +833,7 @@ public class DataAggregation
 								//System.out.println(str_old[k] + "===" + str_new[k]);
 								continue;
 							} else {
-								if (k > 1) {
+								if (k > 4) {
 									log1 = 1;
 								}
 								break;

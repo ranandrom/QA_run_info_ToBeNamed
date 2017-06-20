@@ -75,7 +75,7 @@ public class QA_run_info
 				logl++;
 			} else if ((args_len == 1) && args[0].equals("-help")) {
 				System.out.println();
-				System.out.println("Version: V1.0.0");
+				System.out.println("Version: V1.0.1");
 				System.out.println();
 				System.out.println("Usage:\t java -jar QA_run_info.jar [Options] [args...]");
 				System.out.println();
@@ -138,7 +138,7 @@ public class QA_run_info
 
 		System.out.println("程序开始时间: " + formatter_star.format(now_star.getTime()));
 		System.out.println("===============================================");
-		System.out.println("QA_run_info.1.0.0");
+		System.out.println("QA_run_info.1.0.1");
 		System.out.println("***********************************************");
 		System.out.println();
 
