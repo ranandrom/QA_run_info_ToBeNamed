@@ -112,6 +112,8 @@ public class DataAggregation
 		ArrayList<String> old_file_list = new ArrayList<String>(); // 旧文件列表
 		ArrayList<String> new_file_list = new ArrayList<String>(); // 新文件列表
 		ArrayList<String> updata_file_list = new ArrayList<String>(); // 被更新的文件列表
+		ArrayList<String> mergeExcelData_list = new ArrayList<String>(); // 项目文件数据列表
+		ArrayList<String> mergeOldData_list = new ArrayList<String>(); // 项目文件数据列表
 
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 		String day = formatter.format(now_star.getTime()); // 格式化后的日期
@@ -128,8 +130,24 @@ public class DataAggregation
 		old_file_list = Linux_Cmd(oldfile_cmd); // 调用linux命令获取旧文件列表
 
 		// 总血浆表
+		mergeOldData_list.clear();
 		for (int i = 0; i < Plasma_File_List.size(); i++) {
-			readExcelData(new File(Plasma_File_List.get(i)), Plasma_Data_List);
+			//readExcelData(new File(Plasma_File_List.get(i)), Plasma_Data_List);
+			mergeExcelData_list.clear();
+			readExcelData(new File(Plasma_File_List.get(i)), mergeExcelData_list);
+			if (mergeOldData_list.size() == 0) {
+				mergeOldData_list.addAll(mergeExcelData_list);
+				continue;
+			} else {
+				if (mergeExcelData_list.size() == 0) {
+					continue;
+				} else {
+					Plasma_Data_List.clear();
+					mergeExcelData(mergeExcelData_list, mergeOldData_list, Plasma_Data_List);
+					mergeOldData_list.clear();
+					mergeOldData_list.addAll(Plasma_Data_List);
+				}
+			}
 		}
 		if (Cover == 1) {
 			old_porjaect_data.clear();
@@ -198,8 +216,23 @@ public class DataAggregation
 		System.out.println("血浆表已完成！");
 
 		// 总组织表
+		mergeOldData_list.clear();
 		for (int i = 0; i < Tissue_File_List.size(); i++) {
-			readExcelData(new File(Tissue_File_List.get(i)), Tissue_Data_List);
+			mergeExcelData_list.clear();
+			readExcelData(new File(Tissue_File_List.get(i)), mergeExcelData_list);
+			if (mergeOldData_list.size() == 0) {
+				mergeOldData_list.addAll(mergeExcelData_list);
+				continue;
+			} else {
+				if (mergeExcelData_list.size() == 0) {
+					continue;
+				} else {
+					Tissue_Data_List.clear();
+					mergeExcelData(mergeExcelData_list, mergeOldData_list, Tissue_Data_List);
+					mergeOldData_list.clear();
+					mergeOldData_list.addAll(Tissue_Data_List);
+				}
+			}
 		}
 		if (Cover == 1) {
 			old_porjaect_data.clear();
@@ -266,8 +299,23 @@ public class DataAggregation
 		System.out.println("组织表已完成！");
 		
 		// 总白细胞表
+		mergeOldData_list.clear();
 		for (int i = 0; i < BC_File_List.size(); i++) {
-			readExcelData(new File(BC_File_List.get(i)), BC_Data_List);
+			mergeExcelData_list.clear();
+			readExcelData(new File(BC_File_List.get(i)), mergeExcelData_list);
+			if (mergeOldData_list.size() == 0) {
+				mergeOldData_list.addAll(mergeExcelData_list);
+				continue;
+			} else {
+				if (mergeExcelData_list.size() == 0) {
+					continue;
+				} else {
+					BC_Data_List.clear();
+					mergeExcelData(mergeExcelData_list, mergeOldData_list, BC_Data_List);
+					mergeOldData_list.clear();
+					mergeOldData_list.addAll(BC_Data_List);
+				}
+			}
 		}
 		if (Cover == 1) {
 			old_porjaect_data.clear();
@@ -334,8 +382,23 @@ public class DataAggregation
 		System.out.println("白细胞表已完成！");
 
 		// 测试数据表
+		mergeOldData_list.clear();
 		for (int i = 0; i < Test_File_List.size(); i++) {
-			readExcelData(new File(Test_File_List.get(i)), Test_Data_List);
+			mergeExcelData_list.clear();
+			readExcelData(new File(Test_File_List.get(i)), mergeExcelData_list);
+			if (mergeOldData_list.size() == 0) {
+				mergeOldData_list.addAll(mergeExcelData_list);
+				continue;
+			} else {
+				if (mergeExcelData_list.size() == 0) {
+					continue;
+				} else {
+					Test_Data_List.clear();
+					mergeExcelData(mergeExcelData_list, mergeOldData_list, Test_Data_List);
+					mergeOldData_list.clear();
+					mergeOldData_list.addAll(Test_Data_List);
+				}
+			}
 		}
 		if (Cover == 1) {
 			old_porjaect_data.clear();
@@ -791,6 +854,129 @@ public class DataAggregation
 		}
 	}
 	
+	
+	/**
+	 * 更新Excel表文件数据
+	 * 
+	 * @param file
+	 * @param Data_list
+	 */
+	public static void mergeExcelData(ArrayList<String> new_data, ArrayList<String> old_data, ArrayList<String> updata_data)
+	{
+		//ArrayList<String> old_data = new ArrayList<String>();
+		//ArrayList<String> updata_data = new ArrayList<String>();
+		// 对比新旧数据
+		for (int j = 0; j < new_data.size(); j++) {
+			String str_new[] = new_data.get(j).split("\t");
+			int log4 = 0;
+			for (int i = 0; i < old_data.size(); i++) {
+				int log1 = 0;
+				int log2 = 0;
+				int log3 = 0;
+				String str_old[] = old_data.get(i).split("\t");
+				for (int k = 0; k < str_old.length; k++) {
+					if (k == 34) {
+						log2 = 1;
+						break;
+					} else if (k > 26) {
+						if (str_old[k].equals("NA")) {
+							str_old[k] = str_new[k];
+						} else if (str_new[k].equals("NA")) {
+							log3 = 1;
+							continue;
+						} else {
+							str_old[k] += "; "+str_new[k];
+						}
+						log3 = 1;
+					} else {
+						if (str_old[k].equals(str_new[k])) {
+							log4 = 1;
+							//System.out.println(str_old[k] + "==/////==" + str_new[k]);
+							continue;
+						} else {
+							if (str_old[k].equals("NA")) {
+								//System.out.println(str_old[k] + "==*****==" + str_new[k]);
+								str_old[k] = str_new[k];
+								log3 = 1;
+								//System.out.println(str_old[k] + "==||||||||||||||==" + str_new[k]);
+								continue;
+							} else if (str_new[k].equals("NA")) {
+								//System.out.println(str_old[k] + "===" + str_new[k]);
+								continue;
+							} else {
+								if (k > 2) {
+									log1 = 1;
+								}
+								break;
+							}
+						}
+					}
+				}
+				if (log1 == 1) {
+					if (!updata_data.contains(old_data.get(i))) {
+						updata_data.add(old_data.get(i));
+					}
+					if (!updata_data.contains(new_data.get(j))) {
+						updata_data.add(new_data.get(j));
+					}
+					continue;
+				}
+				if (log2 == 1) {
+					//System.out.println("log2 == 1 ");
+					if (log3 == 1) {
+						//System.out.println("log3 == 1 ");
+						String data = null;
+						for (int x = 0; x < str_old.length; x++) {
+							if (x == 0) {
+								data = str_old[x];
+							} else {
+								data += "\t" + str_old[x];
+							}
+						}
+						//System.out.println("data ==== " + data);
+						//System.out.println("/////////////////////////");
+						if (!updata_data.contains(data)) {
+							updata_data.add(data);
+						}
+					} else {
+						if (!updata_data.contains(old_data.get(i))) {
+							updata_data.add(old_data.get(i));
+						}
+					}
+					continue;
+				}
+			}
+			if (log4 == 0) {
+				if (!updata_data.contains(new_data.get(j))) {
+					updata_data.add(new_data.get(j));
+				}
+			}
+		}
+		
+		for (int j = 0; j < old_data.size(); j++) {
+			String str_old[] = old_data.get(j).split("\t");
+			int log1 = 0;
+			for (int i = 0; i < updata_data.size(); i++) {
+				String str_updata[] = updata_data.get(i).split("\t");
+				if (str_old[0].equals(str_updata[0])) {
+					log1 = 1;
+					break;
+				} else {
+					continue;
+				}
+			}
+			if (log1 == 0) {
+				if (!updata_data.contains(old_data.get(j))) {
+					updata_data.add(old_data.get(j));
+				}
+				continue;
+			}
+		}
+		
+		
+	}
+
+	
 	/**
 	 * 更新Excel表文件数据
 	 * 
@@ -880,7 +1066,28 @@ public class DataAggregation
 					updata_data.add(new_data.get(j));
 				}
 			}
-		}			
+		}
+		
+		for (int j = 0; j < old_data.size(); j++) {
+			String str_old[] = old_data.get(j).split("\t");
+			int log1 = 0;
+			for (int i = 0; i < updata_data.size(); i++) {
+				String str_updata[] = updata_data.get(i).split("\t");
+				if (str_old[0].equals(str_updata[0])) {
+					log1 = 1;
+					break;
+				} else {
+					continue;
+				}
+			}
+			if (log1 == 0) {
+				if (!updata_data.contains(old_data.get(j))) {
+					updata_data.add(old_data.get(j));
+				}
+				continue;
+			}
+		}
+		
 		createXlsx(file); // 创建新的文件，达到清除数据效果		
 		try {
 			FileInputStream is = new FileInputStream(file);
