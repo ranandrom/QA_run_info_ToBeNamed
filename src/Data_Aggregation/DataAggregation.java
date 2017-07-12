@@ -987,6 +987,7 @@ public class DataAggregation
 	{
 		//ArrayList<String> old_data = new ArrayList<String>();
 		ArrayList<String> updata_data = new ArrayList<String>();
+		ArrayList<String> final_data = new ArrayList<String>();
 		// 对比新旧数据
 		for (int j = 0; j < new_data.size(); j++) {
 			String str_new[] = new_data.get(j).split("\t");
@@ -1068,6 +1069,7 @@ public class DataAggregation
 			}
 		}
 		
+		//添加新表里没有的数据
 		for (int j = 0; j < old_data.size(); j++) {
 			String str_old[] = old_data.get(j).split("\t");
 			int log1 = 0;
@@ -1088,15 +1090,63 @@ public class DataAggregation
 			}
 		}
 		
+		//对数据做标记
+		for (int j = 0; j < updata_data.size(); j++) {
+			String str_up[] = updata_data.get(j).split("\t");
+			int log1 = 0;
+			for (int i = 0; i < new_data.size(); i++) {
+				String str_new[] = new_data.get(i).split("\t");
+				if (str_new[0].equals(str_up[0])) {
+					for (int k = 0; k < str_new.length; k++) {
+						if (k == 24) {
+							break;
+						} else {
+							if (str_up[k].equals("NA")) {
+								continue;
+							} else {
+								if (str_new[k].equals("NA") || str_new[k].equals(str_up[k])) {
+									continue;
+								} else {
+									log1 = 1;
+									break;
+								}
+							}
+						}
+					}
+				} else {
+					continue;
+				}
+			}
+			if (log1 == 1) {
+				str_up[34] = "该记录不存在"; //做标记
+				String data = null;
+				for (int x = 0; x < str_up.length; x++) {
+					if (x == 0) {
+						data = str_up[x];
+					} else {
+						data += "\t" + str_up[x];
+					}
+				}
+				if (!final_data.contains(data)) {
+					final_data.add(data);
+				}
+				continue;
+			} else {
+				if (!final_data.contains(updata_data.get(j))) {
+					final_data.add(updata_data.get(j));
+				}
+			}
+		}
+		
 		createXlsx(file); // 创建新的文件，达到清除数据效果		
 		try {
 			FileInputStream is = new FileInputStream(file);
 			XSSFWorkbook workbook = new XSSFWorkbook(is);
 			XSSFSheet sheet = workbook.getSheetAt(0); // 获取第1个工作薄
 			// 写回数据
-			for (int j = 0; j < updata_data.size(); j++) {			
+			for (int j = 0; j < final_data.size(); j++) {			
 				XSSFRow row = sheet.createRow((short) sheet.getLastRowNum() + 1);
-				String str_row[] = updata_data.get(j).split("\t");
+				String str_row[] = final_data.get(j).split("\t");
 				for (int i = 0; i < str_row.length; i++) {
 					// 在索引0的位置创建单元格（左上端）
 					XSSFCell cell = row.createCell(i);
