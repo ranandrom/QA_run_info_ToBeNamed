@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +27,13 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+
+import ch.ethz.ssh2.Connection;
+import ch.ethz.ssh2.SCPClient;
 
 
 /**
@@ -184,13 +192,13 @@ public class SubThread extends Thread
 					+ "C methylated in CpG context" + "\t" + "QC result" + "\t" + "Date of QC" + "\t"
 					+ "Path to sorted.deduped.bam" + "\t" + "Date of path update" + "\t" + "Bait set" + "\t"
 					+ "log2(CPM+1)" + "\t" + "Sample QC" + "\t" + "Failed QC Detail" + "\t" + "Warning QC Detail" + "\t"
-					+ "flagstat.xls(Mapping%)" + "\t" + "Pre-lib name*sorted.deduplicated.bam.perTarget.coverage(Uniformity (0.2X mean))" + "\t"
+					+ "PE report.txt(Mapping%)" + "\t" + "Pre-lib name*sorted.deduplicated.bam.perTarget.coverage(Uniformity (0.2X mean))" + "\t"
 					+ "Pre-lib name*sorted.deduplicated.bam.hsmetrics.txt(Deduped mean bait coverage; Deduped mean target coverage; % target bases > 30X)" + "\t"
 					+ "Pre-lib name*sorted.deduplicated.bam.insertSize.txt(Mean_insert_size; Median_insert_size)" + "\t"
 					+ "Pre-lib name*sorted.bam.hsmetrics.txt(Total PF reads; On target%; Pre-dedup mean bait coverage; Bait set)" + "\t"
 					+ "Pre-lib name*PE_report.txt(C methylated in CHG context; C methylated in CHH context; C methylated in CpG context)" + "\t"
 					+ "Pre-lib name*hsmetrics.QC.xls*(QC result; Date of QC; Date of path update)" + "\t"
-					+ "Check" + "\t" + "Note1" + "\t" + "Note2" + "\t" + "Note3";
+					+ "Mark" + "\t" + "Check" + "\t" + "Note1" + "\t" + "Note2" + "\t" + "Note3";
 
 			// 1、创建字体，设置其为红色：
 			XSSFFont font = workbook.createFont();
@@ -950,6 +958,87 @@ public class SubThread extends Thread
 		}
 		return data;
 	}
+	
+	/**
+	 * 用SSh到10.2服务器上寻找文件的方法
+	 * 
+	 * @param command
+	 * @throws Exception 
+	 */
+	public static String sshFun(String command) throws Exception
+	{
+		String data = null;
+		String user = "zhirong_lu";
+		String pass = "zhirong_lu";
+		String host = "192.168.10.2";
+		int port = 22;
+			
+		//String command = "mkdir " + PutPath;
+		JSch jsch = new JSch();
+		// 创建session并且打开连接，因为创建session之后要主动打开连接
+		Session session = jsch.getSession(user, host, port);
+		Hashtable<String, String> config = new Hashtable<String, String>();
+		config.put("StrictHostKeyChecking", "no");
+		session.setConfig(config);
+		session.setPassword(pass);
+		session.connect();
+		// 打开通道，设置通道类型，和执行的命令
+		ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+		channelExec.setCommand(command);
+		channelExec.setInputStream(null);
+		BufferedReader input = new BufferedReader(new InputStreamReader(channelExec.getInputStream()));
+		channelExec.connect();
+		// 接收远程服务器执行命令的结果 
+		String line = null;
+		while ((line = input.readLine()) != null) {
+			data = line;
+		} // 循环读出系统调用返回值，保证脚本调用正常完成
+		input.close(); 
+		channelExec.disconnect();
+		session.disconnect();
+
+		Thread.sleep(1000);
+		return data;
+	}
+	
+	/**
+	 * 調用ssh的方法，若ssh过程中拋出异常，程序自动修复，但ssh连续申请链接1000次都没有成功，程序直接退出执行！
+	 * 
+	 * @param filename
+	 * @param PutPath
+	 */
+	public static String sequencingFileName(String command)
+	{
+		int x = 0;
+		String data = null;
+		while (true) {
+			try {
+				data = sshFun(command);
+				if (data == null) {
+					data = "NA";
+				}
+				if (x != 0) {
+					System.out.println();
+					System.out.println("ssh到10.2过程中拋出异常，但程序已自动修复成功！ ");
+					x = 0;
+				}
+				break;
+			} catch (Exception e) {
+				//e.printStackTrace();
+				x++;		
+			}
+			if (x == 100) {
+				System.out.println();
+				System.out.println("ssh到10.2连续申请链接100次都没有成功，程序直接退出执行！");
+				return "off";
+			} else {
+				System.out.println();
+				System.out.println("ssh到10.2过程中第" + x +"次拋出异常，但程序正在尝试自动修复！ ");
+				continue;
+			}		
+		}
+		return data;
+	}
 
 	/**
 	 * 对每一列的数据计算并生产输出文件的方法。
@@ -1024,14 +1113,20 @@ public class SubThread extends Thread
 				map_logo.put("Identification name", ID_dataArr[0]); // 向数据结果集合添加Identification name的值
 				map_logo.put("Sequencing info", Sequencing_Info); // 向数据结果集合添加Sequencing info的值
 
-				String cmd = "find /Src_Data1/nextseq500 /Src_Data1/x10/ -name " + "*" + ID_dataArr[0] + "*";
+				String cmd = "find /Src_Data1/nextseq500 /Src_Data1/x10/ -type f -name " + ID_dataArr[0] + ".fastq.gz";
 				Process process = Runtime.getRuntime().exec(cmd);
 				BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String Sequencing_file_name = null;
 				if ((Sequencing_file_name = input.readLine()) != null) {
 					map_logo.put("Sequencing file name", Sequencing_file_name); // 向数据结果集合添加Sequencing file name的值
 				} else {
-					map_logo.put("Sequencing file name", "NA");
+					String command = "find /iron/nextseq500/outputdata/"+ Sequencing_Info +"/Data/Intensities/BaseCalls/ -type f -name " + ID_dataArr[0] + ".fastq.gz";
+					Sequencing_file_name = sequencingFileName(command);
+					if (Sequencing_file_name.equals("off")) {
+						map_logo.put("Sequencing file name", "10.5上无该文件，而ssh10.2过程中出异常！");
+					} else {
+						map_logo.put("Sequencing file name", Sequencing_file_name);
+					}
 				}
 
 				String deduped_cvg = null;
@@ -1119,7 +1214,7 @@ public class SubThread extends Thread
 				String CHH = null;
 
 				// 向数据结果集合添加Mapping%的值
-				data = null;
+				/*data = null;
 				String Start = ID_dataArr[0];
 				String End = "sorted.bam";
 				String flagstat = null;
@@ -1184,6 +1279,20 @@ public class SubThread extends Thread
 				if (tar == 1) {
 					Map = data;
 				} else {
+					Map = "NA";
+				}*/
+				
+				// 向数据结果集合添加Mapping%的值
+				data = null;
+				if (bisulfite != null) {
+					String[] cmd4 = { "awk", "/Mapping efficiency/ {print $3}", bisulfite };
+					data = Linux_Cmd(cmd4);
+					map_logo.put("Mapping%", data);
+					map_logo.put("PE report.txt(Mapping%)", md5sum(bisulfite));
+					Map = data;
+				} else {
+					map_logo.put("Mapping%", "NA");
+					map_logo.put("PE report.txt(Mapping%)", "NA");
 					Map = "NA";
 				}
 

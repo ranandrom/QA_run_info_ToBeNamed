@@ -596,13 +596,13 @@ public class DataAggregation
 					+ "C methylated in CpG context" + "\t" + "QC result" + "\t" + "Date of QC" + "\t"
 					+ "Path to sorted.deduped.bam" + "\t" + "Date of path update" + "\t" + "Bait set" + "\t"
 					+ "log2(CPM+1)" + "\t" + "Sample QC" + "\t" + "Failed QC Detail" + "\t" + "Warning QC Detail" + "\t"
-					+ "flagstat.xls(Mapping%)" + "\t" + "Pre-lib name*sorted.deduplicated.bam.perTarget.coverage(Uniformity (0.2X mean))" + "\t"
+					+ "PE report.txt(Mapping%)" + "\t" + "Pre-lib name*sorted.deduplicated.bam.perTarget.coverage(Uniformity (0.2X mean))" + "\t"
 					+ "Pre-lib name*sorted.deduplicated.bam.hsmetrics.txt(Deduped mean bait coverage; Deduped mean target coverage; % target bases > 30X)" + "\t"
 					+ "Pre-lib name*sorted.deduplicated.bam.insertSize.txt(Mean_insert_size; Median_insert_size)" + "\t"
 					+ "Pre-lib name*sorted.bam.hsmetrics.txt(Total PF reads; On target%; Pre-dedup mean bait coverage; Bait set)" + "\t"
 					+ "Pre-lib name*PE_report.txt(C methylated in CHG context; C methylated in CHH context; C methylated in CpG context)" + "\t"
 					+ "Pre-lib name*hsmetrics.QC.xls*(QC result; Date of QC; Date of path update)" + "\t"
-					+ "Check" + "\t" + "Note1" + "\t" + "Note2" + "\t" + "Note3";
+					+ "Mark" + "\t" + "Check" + "\t" + "Note1" + "\t" + "Note2" + "\t" + "Note3";
 
 			// 1、创建字体，设置其为红色：
 			XSSFFont font = workbook.createFont();
