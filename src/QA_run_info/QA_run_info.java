@@ -200,6 +200,7 @@ public class QA_run_info
 			}
 			Thread.sleep(500);
 		}
+		//DataAggregation.outPutData(dir + "/Data_Aggregation/" + day, Path, Cover, PutPath, Uploadtag, Upload, oldfileday); // Êý¾Ý»ã×Ü
 
 		String cmd2 = "rm -r ./oldExcel";
 		try {

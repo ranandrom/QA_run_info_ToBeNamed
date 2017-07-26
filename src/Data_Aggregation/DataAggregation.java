@@ -133,6 +133,7 @@ public class DataAggregation
 		mergeOldData_list.clear();
 		for (int i = 0; i < Plasma_File_List.size(); i++) {
 			//readExcelData(new File(Plasma_File_List.get(i)), Plasma_Data_List);
+			//System.out.println(Plasma_File_List.get(i));
 			mergeExcelData_list.clear();
 			readExcelData(new File(Plasma_File_List.get(i)), mergeExcelData_list);
 			if (mergeOldData_list.size() == 0) {
@@ -864,7 +865,7 @@ public class DataAggregation
 	public static void mergeExcelData(ArrayList<String> new_data, ArrayList<String> old_data, ArrayList<String> updata_data)
 	{
 		//ArrayList<String> old_data = new ArrayList<String>();
-		//ArrayList<String> updata_data = new ArrayList<String>();
+		ArrayList<String> old_save = new ArrayList<String>();
 		// 对比新旧数据
 		for (int j = 0; j < new_data.size(); j++) {
 			String str_new[] = new_data.get(j).split("\t");
@@ -904,9 +905,9 @@ public class DataAggregation
 								//System.out.println(str_old[k] + "===" + str_new[k]);
 								continue;
 							} else {
-								if (k > 2) {
+								if (k > 0) {
 									log1 = 1;
-								}
+								}								
 								break;
 							}
 						}
@@ -914,10 +915,10 @@ public class DataAggregation
 				}
 				if (log1 == 1) {
 					if (!updata_data.contains(old_data.get(i))) {
-						updata_data.add(old_data.get(i));
+						updata_data.add(old_data.get(i));					
 					}
 					if (!updata_data.contains(new_data.get(j))) {
-						updata_data.add(new_data.get(j));
+						updata_data.add(new_data.get(j));						
 					}
 					continue;
 				}
@@ -953,6 +954,7 @@ public class DataAggregation
 			}
 		}
 		
+		old_save.clear();
 		for (int j = 0; j < old_data.size(); j++) {
 			String str_old[] = old_data.get(j).split("\t");
 			int log1 = 0;
@@ -966,14 +968,13 @@ public class DataAggregation
 				}
 			}
 			if (log1 == 0) {
-				if (!updata_data.contains(old_data.get(j))) {
-					updata_data.add(old_data.get(j));
+				if (!old_save.contains(old_data.get(j))) {
+					old_save.add(old_data.get(j));
 				}
 				continue;
 			}
-		}
-		
-		
+		}		
+		updata_data.addAll(old_save);
 	}
 
 	
@@ -985,7 +986,7 @@ public class DataAggregation
 	 */
 	public static void updataExcelData(File file, ArrayList<String> new_data, ArrayList<String> old_data)
 	{
-		//ArrayList<String> old_data = new ArrayList<String>();
+		ArrayList<String> old_save = new ArrayList<String>();
 		ArrayList<String> updata_data = new ArrayList<String>();
 		ArrayList<String> final_data = new ArrayList<String>();
 		// 对比新旧数据
@@ -1020,7 +1021,7 @@ public class DataAggregation
 								//System.out.println(str_old[k] + "===" + str_new[k]);
 								continue;
 							} else {
-								if (k > 4) {
+								if (k > 0) {
 									log1 = 1;
 								}
 								break;
@@ -1070,6 +1071,7 @@ public class DataAggregation
 		}
 		
 		//添加新表里没有的数据
+		old_save.clear();
 		for (int j = 0; j < old_data.size(); j++) {
 			String str_old[] = old_data.get(j).split("\t");
 			int log1 = 0;
@@ -1083,12 +1085,13 @@ public class DataAggregation
 				}
 			}
 			if (log1 == 0) {
-				if (!updata_data.contains(old_data.get(j))) {
-					updata_data.add(old_data.get(j));
+				if (!old_save.contains(old_data.get(j))) {
+					old_save.add(old_data.get(j));
 				}
 				continue;
 			}
-		}
+		}	
+		updata_data.addAll(old_save);
 		
 		//对数据做标记
 		for (int j = 0; j < updata_data.size(); j++) {

@@ -1070,6 +1070,7 @@ public class SubThread extends Thread
 				Fail_List.clear();
 				regEx = "[A-Z]{2}\\d{3}\\-\\d{3}";
 				File file = null;
+				String fileclass = null;
 				int underlog = 0;
 				String ID_dataArr[] = ID_data.get(i).split("\t");
 				String Sample_ID = null;
@@ -1081,11 +1082,13 @@ public class SubThread extends Thread
 						file = Test_File;
 						Pre_lib_name = ID_dataArr[0];
 						underlog = 1;
+						fileclass = "test";
 					}
 				} else {
 					file = Test_File;
 					Pre_lib_name = ID_dataArr[0];
 					underlog = 1;
+					fileclass = "test";
 				}
 				if (Pre_lib_name != null) {
 					if ((Pre_lib_name.contains("-BD") || Pre_lib_name.contains("-PS")) && file == null) {
@@ -1096,6 +1099,7 @@ public class SubThread extends Thread
 						file = BC_File;
 					} else if (file == null) {
 						file = Test_File;
+						fileclass = "test";
 					}
 					Sample_ID = Regular_Expression(Pre_lib_name, regEx);
 					if (Sample_ID == null) {
@@ -1517,6 +1521,18 @@ public class SubThread extends Thread
 				if (deduped_bam != null) {
 					data = deduped_bam;
 					map_logo.put("Path to sorted.deduped.bam", data);
+					
+					//根据bam的路径确实是否为test样本
+					if (fileclass == null) {
+						String str[] = data.split("/");
+						String str_Sample[] = Sample_ID.split("-");
+						if (str.length == 8) {
+							if (!str[5].equals("analysis") && !str[5].equals("methylation") && !str[5].contains(str_Sample[0])) {
+								file = Test_File;
+							}							
+						}
+					}
+					
 				} else {
 					map_logo.put("Path to sorted.deduped.bam", "NA");
 				}
