@@ -75,49 +75,74 @@ public class SubThread extends Thread
 	{
 		Calendar now = Calendar.getInstance();
 		SimpleDateFormat formatter_Date = new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat formatter_end = new SimpleDateFormat("HH_mm_ss");
 		String Day = formatter_Date.format(now.getTime());
+		String time = formatter_end.format(now.getTime());
+		
 		if (inputlenght == 0 || inputlenght == 1) {
 			if (pathname.isDirectory()) { // 如果是目录
 				String dir_name = pathname.getName(); // 目录名
-				String Sequencing_Info = dir + "/" + dir_name;
-				if (!(dir_name.startsWith("0."))) {
-					for (File porject : pathname.listFiles()) {
-						if (porject.isDirectory()) { // 如果是目录
-							// 获取文件的绝对路径
-							String Folder = porject.getParent();
-							String Por_name = porject.getName(); // 子目录名
-							String Path = Folder + "/" + Por_name;
-							String Por_dir = Sequencing_Info + "/" + Por_name;
-							String Plasma_ExcelName = "QA_run_info_" + Por_name + "_Plasma_" + Day + "." + ExcelFormat; // 血浆表
-							String Tissue_ExcelName = "QA_run_info_" + Por_name + "_Tissue_" + Day + "." + ExcelFormat; // 组织表
-							String BC_ExcelName = "QA_run_info_" + Por_name + "_BC_" + Day + "." + ExcelFormat; // 白细胞表
-							String Test_ExcelName = "QA_run_info_" + Por_name + "_Test_" + Day + "."
-									+ ExcelFormat; // 测试数据表
-							String Plasma_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Plasma_" + Day + ".tsv"; // 血浆tsv文件
-							String Tissue_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Tissue_" + Day + ".tsv"; // 组织tsv文件
-							String BC_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_BC_" + Day + ".tsv"; // 白细胞tsv文件
-							String Test_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Test_" + Day + ".tsv"; // 测试数据tsv文件
-							String Plasma_Excel = Por_dir + "/" + Plasma_ExcelName;
-							String Tissue_Excel = Por_dir + "/" + Tissue_ExcelName;
-							String BC_Excel = Por_dir + "/" + BC_ExcelName;
-							String Test_Excel = Por_dir + "/" + Test_ExcelName;
-							File Plasma_excel = new File(Plasma_Excel);
-							File Tissue_excel = new File(Tissue_Excel);
-							File BC_excel = new File(BC_Excel);
-							File Test_excel = new File(Test_Excel);
-							my_mkdir(Por_dir);
+				String InputArr[] = dir_name.split("_");
+				if (InputArr.length == 4) {
+					if(InputArr[0].length() == 6 && Regular_Expression(InputArr[0], "^[0-2]\\d[0-1]\\d[0-3]\\d") != null){
+						if(Regular_Expression(InputArr[1], "^[A-Z]{1,}\\d{1,}") != null){
+							if(InputArr[2].length() == 4 && Regular_Expression(InputArr[2], "^\\d{4}") != null){
+								if(Regular_Expression(InputArr[3], "^[A-Z0-9]{1,}") != null){
+									String Sequencing_Info = dir + "/" + dir_name;
+									if (!(dir_name.startsWith("0."))) {
+										for (File porject : pathname.listFiles()) {
+											if (porject.isDirectory()) { // 如果是目录
+												// 获取文件的绝对路径
+												String Folder = porject.getParent();
+												String Por_name = porject.getName(); // 子目录名
+												String Path = Folder + "/" + Por_name;
+												String Por_dir = Sequencing_Info + "/" + Por_name;
+												String Plasma_ExcelName = "QA_run_info_" + Por_name + "_Plasma_" + Day + "." + ExcelFormat; // 血浆表
+												String Tissue_ExcelName = "QA_run_info_" + Por_name + "_Tissue_" + Day + "." + ExcelFormat; // 组织表
+												String BC_ExcelName = "QA_run_info_" + Por_name + "_BC_" + Day + "." + ExcelFormat; // 白细胞表
+												String Test_ExcelName = "QA_run_info_" + Por_name + "_Test_" + Day + "."
+														+ ExcelFormat; // 测试数据表
+												String Plasma_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Plasma_" + Day + ".tsv"; // 血浆tsv文件
+												String Tissue_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Tissue_" + Day + ".tsv"; // 组织tsv文件
+												String BC_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_BC_" + Day + ".tsv"; // 白细胞tsv文件
+												String Test_Tsv = Por_dir + "/" + "QA_run_info_" + Por_name + "_Test_" + Day + ".tsv"; // 测试数据tsv文件
+												String Plasma_Excel = Por_dir + "/" + Plasma_ExcelName;
+												String Tissue_Excel = Por_dir + "/" + Tissue_ExcelName;
+												String BC_Excel = Por_dir + "/" + BC_ExcelName;
+												String Test_Excel = Por_dir + "/" + Test_ExcelName;
+												File Plasma_excel = new File(Plasma_Excel);
+												File Tissue_excel = new File(Tissue_Excel);
+												File BC_excel = new File(BC_Excel);
+												File Test_excel = new File(Test_Excel);
+												my_mkdir(Por_dir);
 
-							createXlsx(Plasma_excel); // 创建血浆表
-							createXlsx(Tissue_excel); // 创建组织表
-							createXlsx(BC_excel); // 创建测试表
-							createXlsx(Test_excel); // 测试的数据表
+												createXlsx(Plasma_excel); // 创建血浆表
+												createXlsx(Tissue_excel); // 创建组织表
+												createXlsx(BC_excel); // 创建测试表
+												createXlsx(Test_excel); // 测试的数据表
 
-							calculatedData(Plasma_Excel, Tissue_Excel, BC_Excel, Test_Excel, Plasma_Tsv, Tissue_Tsv, BC_Tsv,
-									Test_Tsv, Path, Por_name);
+												calculatedData(Plasma_Excel, Tissue_Excel, BC_Excel, Test_Excel, Plasma_Tsv, Tissue_Tsv, BC_Tsv,
+														Test_Tsv, Path, Por_name);
+												
+											} else {
+												continue;
+											}
+										}
+									}
+								} else {
+									return;
+								}
+							} else {
+								return;
+							}
 						} else {
-							continue;
+							return;
 						}
+					} else {
+						return;
 					}
+				} else {
+					return;
 				}
 			}
 		} else if (inputlenght == 2) {
@@ -151,6 +176,7 @@ public class SubThread extends Thread
 			createXlsx(Test_excel); // 测试的数据表
 
 			calculatedData(Plasma_Excel, Tissue_Excel, BC_Excel, Test_Excel, Plasma_Tsv, Tissue_Tsv, BC_Tsv, Test_Tsv, Path, Por_name);
+
 		}
 	}
 
@@ -348,7 +374,7 @@ public class SubThread extends Thread
 								String Folder = file.getParent();
 								// 把文件名（basename）添加进列表
 								String FileName = file.getName();
-								String regEx = "S.*_R1_001";
+								String regEx = "[DPM|S].*_R1_001";
 								String ID = Regular_Expression(FileName, regEx);
 								String IDP = ID + "\t" + Folder;
 								if (data_ID.contains(ID) || ID == null) {
@@ -376,7 +402,7 @@ public class SubThread extends Thread
 					String Folder = file.getParent();
 					// 把文件名（basename）添加进列表
 					String FileName = file.getName();
-					String regEx = "S.*_R1_001";
+					String regEx = "[DPM|S].*_R1_001";
 					String ID = Regular_Expression(FileName, regEx);
 					String IDP = ID + "\t" + Folder;
 					if (data_ID.contains(ID) || ID == null) {
@@ -855,23 +881,48 @@ public class SubThread extends Thread
 	{
 		String Pre_lib_name = null;
 		String Pre_lib_name_Arr[] = input.split("-");
-		if (Pre_lib_name_Arr.length == 5 && !input.contains("-IRM")) {
-			for (int i = 1; i < Pre_lib_name_Arr.length - 1; i++) {
-				if (i == 1) {
-					Pre_lib_name = Pre_lib_name_Arr[i];
+		if (Pre_lib_name_Arr.length == 5 && !input.contains("IRM")) {
+			for (int i = 0; i < Pre_lib_name_Arr.length - 1; i++) {
+				if (Pre_lib_name_Arr[0].contains("S")) {
+					 if(i == 0) {
+						 continue;
+					 } else if (i == 1) {
+						Pre_lib_name = Pre_lib_name_Arr[i];
+					} else {
+						Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					}
 				} else {
-					Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					if (i == 0) {
+						Pre_lib_name = Pre_lib_name_Arr[i];
+					} else {
+						Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					}
 				}
 			}
 			String EndArr[] = Pre_lib_name_Arr[Pre_lib_name_Arr.length - 1].split("_");
 			Pre_lib_name += "-" + EndArr[0];
 		} else {
-			for (int i = 1; i < Pre_lib_name_Arr.length - 1; i++) {
-				if (i == 1) {
-					Pre_lib_name = Pre_lib_name_Arr[i];
+			for (int i = 0; i < Pre_lib_name_Arr.length - 1; i++) {
+				if (Pre_lib_name_Arr[0].contains("S")) {
+					 if(i == 0) {
+						 continue;
+					 } else if (i == 1) {
+						Pre_lib_name = Pre_lib_name_Arr[i];
+					} else {
+						Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					}
 				} else {
-					Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					if (i == 0) {
+						Pre_lib_name = Pre_lib_name_Arr[i];
+					} else {
+						Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					}
 				}
+				
+			}
+			String EndArr[] = Pre_lib_name_Arr[Pre_lib_name_Arr.length-1].split("_");
+			if (!EndArr[0].equals("IRM")) {
+				Pre_lib_name += "-" + EndArr[0];
 			}
 		}
 		return Pre_lib_name;
@@ -1054,6 +1105,7 @@ public class SubThread extends Thread
 	public static void calculatedData(String Plasma_Excel, String Tissue_Excel, String BC_Excel, String Test_Excel, String Plasma_Tsv,
 			String Tissue_Tsv, String BC_Tsv, String Test_Tsv, String Input, String Por_name)
 	{
+		//System.out.println(Input);
 		String data = null;
 		File Plasma_File = new File(Plasma_Excel);
 		File Tissue_File = new File(Tissue_Excel);
@@ -1075,18 +1127,25 @@ public class SubThread extends Thread
 				String ID_dataArr[] = ID_data.get(i).split("\t");
 				String Sample_ID = null;
 				String Pre_lib_name = null;
-				if (ID_dataArr[0].contains("-DPM") || ID_dataArr[0].contains("-DNA")) {
+				//System.out.println("+++: "+ ID_dataArr[0]);
+				if (ID_dataArr[0].contains("DPM") || ID_dataArr[0].contains("DNA")) {
 					Pre_lib_name = Extract_Pre_lib_name(ID_dataArr[0]);
+					//System.out.println(ID_dataArr[0]+"===="+Pre_lib_name);
 					String Pre_lib_name_Arr[] = Pre_lib_name.split("-");
 					if (Pre_lib_name_Arr.length < 3) {
-						file = Test_File;
-						Pre_lib_name = ID_dataArr[0];
-						underlog = 1;
-						fileclass = "test";
+						if (ID_dataArr[0].equals("S01-DPM-LC002-110_S1_R1_001")) {
+							Pre_lib_name = ID_dataArr[0];
+					    	file = Plasma_File;
+					    } else {
+							file = Test_File;
+							Pre_lib_name = ID_dataArr[0];
+							underlog = 1;
+							fileclass = "test";
+					    }
 					}
 				} else {
-					file = Test_File;
 					Pre_lib_name = ID_dataArr[0];
+					file = Test_File;
 					underlog = 1;
 					fileclass = "test";
 				}
@@ -1117,7 +1176,7 @@ public class SubThread extends Thread
 				map_logo.put("Identification name", ID_dataArr[0]); // 向数据结果集合添加Identification name的值
 				map_logo.put("Sequencing info", Sequencing_Info); // 向数据结果集合添加Sequencing info的值
 
-				String cmd = "find /Src_Data1/nextseq500 /Src_Data1/x10/ -type f -name " + ID_dataArr[0] + ".fastq.gz";
+				String cmd = "find /Src_Data2/nextseq500 /Src_Data2/x10/ -type f -name " + ID_dataArr[0] + ".fastq.gz";
 				Process process = Runtime.getRuntime().exec(cmd);
 				BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String Sequencing_file_name = null;
@@ -1291,6 +1350,9 @@ public class SubThread extends Thread
 				if (bisulfite != null) {
 					String[] cmd4 = { "awk", "/Mapping efficiency/ {print $3}", bisulfite };
 					data = Linux_Cmd(cmd4);
+					if (data == null) {
+						data = "NA";
+					}
 					map_logo.put("Mapping%", data);
 					map_logo.put("PE report.txt(Mapping%)", md5sum(bisulfite));
 					Map = data;
@@ -1469,6 +1531,9 @@ public class SubThread extends Thread
 				if (bisulfite != null) {
 					String[] cmd14 = { "awk", "/C methylated in CHG context/ {print $6}", bisulfite };
 					data = Linux_Cmd(cmd14);
+					if (data == null) {
+						data = "NA";
+					}
 					map_logo.put("C methylated in CHG context", data);
 					CHG = data;
 				} else {
@@ -1481,6 +1546,9 @@ public class SubThread extends Thread
 				if (bisulfite != null) {
 					String[] cmd15 = { "awk", "/C methylated in CHH context/ {print $6}", bisulfite };
 					data = Linux_Cmd(cmd15);
+					if (data == null) {
+						data = "NA";
+					}
 					map_logo.put("C methylated in CHH context", data);
 					CHH = data;
 				} else {
@@ -1509,8 +1577,8 @@ public class SubThread extends Thread
 
 				// 向数据结果集合添加Date of QC的值
 				data = null;
-				if (QC_result != null) {
-					data = getModifiedTime(QC_result);
+				if (deduped_bam != null) {
+					data = getModifiedTime(deduped_bam);
 					map_logo.put("Date of QC", data);
 				} else {
 					map_logo.put("Date of QC", "NA");
@@ -1539,8 +1607,8 @@ public class SubThread extends Thread
 
 				// 向数据结果集合添加Date of path update的值
 				data = null;
-				if (QC_result != null) {
-					data = getModifiedTime(QC_result);
+				if (deduped_bam != null) {
+					data = getModifiedTime(deduped_bam);
 					map_logo.put("Date of path update", data);
 				} else {
 					map_logo.put("Date of path update", "NA");

@@ -141,6 +141,9 @@ public class DataAggregation
 				continue;
 			} else {
 				if (mergeExcelData_list.size() == 0) {
+					if (i == Plasma_File_List.size()-1 && Plasma_Data_List.isEmpty()) {
+						Plasma_Data_List.addAll(mergeOldData_list);
+					}
 					continue;
 				} else {
 					Plasma_Data_List.clear();
@@ -218,7 +221,9 @@ public class DataAggregation
 
 		// 总组织表
 		mergeOldData_list.clear();
+		int log = 0;
 		for (int i = 0; i < Tissue_File_List.size(); i++) {
+			//System.out.println(Tissue_File_List.get(i));
 			mergeExcelData_list.clear();
 			readExcelData(new File(Tissue_File_List.get(i)), mergeExcelData_list);
 			if (mergeOldData_list.size() == 0) {
@@ -226,8 +231,13 @@ public class DataAggregation
 				continue;
 			} else {
 				if (mergeExcelData_list.size() == 0) {
+					//System.out.println("mergeExcelData_list.size() == 0 ");
+					if (i == Tissue_File_List.size()-1 && Tissue_Data_List.isEmpty()) {
+						Tissue_Data_List.addAll(mergeOldData_list);
+					}
 					continue;
 				} else {
+					//System.out.println("mergeExcelData_list.size() != 0 ");
 					Tissue_Data_List.clear();
 					mergeExcelData(mergeExcelData_list, mergeOldData_list, Tissue_Data_List);
 					mergeOldData_list.clear();
@@ -235,6 +245,7 @@ public class DataAggregation
 				}
 			}
 		}
+		
 		if (Cover == 1) {
 			old_porjaect_data.clear();
 			for (int i = 0; i < old_file_list.size(); i++) {
@@ -309,6 +320,9 @@ public class DataAggregation
 				continue;
 			} else {
 				if (mergeExcelData_list.size() == 0) {
+					if (i == BC_File_List.size()-1 && BC_Data_List.isEmpty()) {
+						BC_Data_List.addAll(mergeOldData_list);
+					}
 					continue;
 				} else {
 					BC_Data_List.clear();
@@ -392,6 +406,9 @@ public class DataAggregation
 				continue;
 			} else {
 				if (mergeExcelData_list.size() == 0) {
+					if (i == Test_File_List.size()-1 && Test_Data_List.isEmpty()) {
+						Test_Data_List.addAll(mergeOldData_list);
+					}
 					continue;
 				} else {
 					Test_Data_List.clear();
@@ -1008,7 +1025,6 @@ public class DataAggregation
 					} else {
 						if (str_old[k].equals(str_new[k])) {
 							log4 = 1;
-							//System.out.println(str_old[k] + "==/////==" + str_new[k]);
 							continue;
 						} else {
 							if (str_old[k].equals("NA")) {
@@ -1046,8 +1062,13 @@ public class DataAggregation
 						for (int x = 0; x < str_old.length; x++) {
 							if (x == 0) {
 								data = str_old[x];
-							} else {
+								continue;
+							} else if (x < 34) {
 								data += "\t" + str_old[x];
+								continue;
+							} else {
+								data += "\t" + str_new[x];
+								continue;
 							}
 						}
 						//System.out.println("data ==== " + data);
@@ -1066,6 +1087,7 @@ public class DataAggregation
 			if (log4 == 0) {
 				if (!updata_data.contains(new_data.get(j))) {
 					updata_data.add(new_data.get(j));
+					//System.out.println(new_data.get(j));
 				}
 			}
 		}
@@ -1099,7 +1121,7 @@ public class DataAggregation
 			int log1 = 0;
 			for (int i = 0; i < new_data.size(); i++) {
 				String str_new[] = new_data.get(i).split("\t");
-				if (str_new[0].equals(str_up[0])) {
+				if (str_new[1].equals(str_up[1])) {
 					for (int k = 0; k < str_new.length; k++) {
 						if (k == 24) {
 							break;
@@ -1137,6 +1159,8 @@ public class DataAggregation
 			} else {
 				if (!final_data.contains(updata_data.get(j))) {
 					final_data.add(updata_data.get(j));
+					String str_row[] = updata_data.get(j).split("\t");
+					
 				}
 			}
 		}

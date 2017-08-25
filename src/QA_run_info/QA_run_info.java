@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import Data_Aggregation.DataAggregation;
 import SubThread.SubThread;
@@ -44,7 +47,7 @@ public class QA_run_info
 		int Upload = 1; // 设置是否需要上传至/wdmycloud/anchordx_cloud/杨莹莹/项目-生信-汇总表/，0代表不上传，1代表上传
 		String dir = "./Ironman"; // 输出结果路径
 		String ExcelFormat = "xlsx"; // Excel表格式后缀
-		String Input = "/Src_Data1/analysis/Ironman/"; // 操作目标路径
+		String Input = "/Src_Data2/analysis/Ironman/"; // 操作目标路径
 		String PutPath = "/wdmycloud/anchordx_cloud/杨莹莹/项目-生信-汇总表/" + day; // 上传文件到“/wdmycloud/anchordx_cloud/杨莹莹/项目-生信-汇总表/”下的新建目录
 		String Path = null; // 项目结果文件查找路径
 
@@ -75,7 +78,7 @@ public class QA_run_info
 				logl++;
 			} else if ((args_len == 1) && args[0].equals("-help")) {
 				System.out.println();
-				System.out.println("Version: V1.0.1");
+				System.out.println("Version: V1.0.3");
 				System.out.println();
 				System.out.println("Usage:\t java -jar QA_run_info.jar [Options] [args...]");
 				System.out.println();
@@ -138,9 +141,59 @@ public class QA_run_info
 
 		System.out.println("程序开始时间: " + formatter_star.format(now_star.getTime()));
 		System.out.println("===============================================");
-		System.out.println("QA_run_info.1.0.1");
+		System.out.println("QA_run_info.1.0.3");
 		System.out.println("***********************************************");
 		System.out.println();
+		
+		/*String input = "DPM-LC005-295-PS1_IRM_S06_R1_001";
+		//String input = "S01-DPM-CR003-438-PS1-IRM_S01_R1_001";
+		String Pre_lib_name = null;
+		String Pre_lib_name_Arr[] = input.split("-");
+		if (Pre_lib_name_Arr.length == 5 && !input.contains("IRM")) {
+			for (int i = 0; i < Pre_lib_name_Arr.length - 1; i++) {
+				if (Pre_lib_name_Arr[0].contains("S0")) {
+					 if(i == 0) {
+						 continue;
+					 } else if (i == 1) {
+						Pre_lib_name = Pre_lib_name_Arr[i];
+					} else {
+						Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					}
+				} else {
+					if (i == 0) {
+						Pre_lib_name = Pre_lib_name_Arr[i];
+					} else {
+						Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					}
+				}
+			}
+			String EndArr[] = Pre_lib_name_Arr[Pre_lib_name_Arr.length - 1].split("_");
+			Pre_lib_name += "-" + EndArr[0];
+		} else {
+			for (int i = 0; i < Pre_lib_name_Arr.length-1; i++) {
+				if (Pre_lib_name_Arr[0].contains("S0")) {
+					if(i == 0) {
+						 continue;
+					} else if (i == 1) {
+						Pre_lib_name = Pre_lib_name_Arr[i];
+					} else {
+						Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					}
+				} else {
+					if (i == 0) {
+						Pre_lib_name = Pre_lib_name_Arr[i];
+					} else {
+						Pre_lib_name += "-" + Pre_lib_name_Arr[i];
+					}
+				}
+				
+			}
+			if (!Pre_lib_name_Arr[0].contains("S0")) {
+				String EndArr[] = Pre_lib_name_Arr[Pre_lib_name_Arr.length-1].split("_");
+				Pre_lib_name += "-" + EndArr[0];
+			}
+		}
+		System.out.println(Pre_lib_name);*/
 
 		String Data_Aggregation_Path = dir + "/Data_Aggregation/";
 		File DAP = new File(Data_Aggregation_Path);
@@ -176,6 +229,7 @@ public class QA_run_info
 				Input_length = 2;
 			}
 		}
+		
 		if (Input_length == 0) {
 			Path = dir;
 			for (File pathname : fileInput.listFiles()) {
@@ -217,12 +271,48 @@ public class QA_run_info
 		//Thread.sleep(3000);
 		//uploadFileToFront(dir); // 上传文件到阿里云端
 
+		/*String str  = "160823_NS500803_0021_AHJLKKBGXY";
+		String str1  = "160824_E00454_0044_BH3Y5LALXX-X10";
+		String str2  = "161230_E00454_0092_AHFHMGALXX_old";
+		String InputArr[] = str1.split("_");
+		System.out.println(InputArr.length);
+		
+		System.out.println(Regular_Expression("160824", "^[0-2]\\d[0-1]\\d[0-3]\\d"));
+		System.out.println(Regular_Expression("E00495", "^[A-Z]{1,}\\d{1,}"));
+		System.out.println(Regular_Expression("0046", "^\\d{4}"));
+		System.out.println(Regular_Expression("BH3Y5LALXX-X10", "^[A-Z0-9]{1,}"));
+		
+		if (InputArr.length == 4) {
+			if(InputArr[0].length() == 6 && Regular_Expression(InputArr[0], "^[0-2]\\d[0-1]\\d[0-3]\\d") != null){
+				if(Regular_Expression(InputArr[1], "^[A-Z]{1,}\\d{1,}") != null){
+					if(InputArr[2].length() == 4 && Regular_Expression(InputArr[2], "^\\d{4}") != null){
+						if(Regular_Expression(InputArr[3], "^[A-Z0-9]{1,}") != null){
+							System.out.println("6666");
+						}
+					}
+				}
+			}
+		}*/
+		
+		
 		Calendar now_end = Calendar.getInstance();
 		SimpleDateFormat formatter_end = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		System.out.println();
 		System.out.println("==============================================");
 		System.out.println("程序结束时间: " + formatter_end.format(now_end.getTime()));
 		System.out.println();
+	}
+	
+	public static String Regular_Expression(String str, String regEx)
+	{
+		String data = null;
+		// 编译正则表达式
+		Pattern pattern = Pattern.compile(regEx);
+		Matcher matcher = pattern.matcher(str);
+		if (matcher.find()) {
+			data = matcher.group();
+		}
+		return data;
 	}
 	
 	/**
