@@ -130,28 +130,32 @@ public class DataAggregation
 		old_file_list = Linux_Cmd(oldfile_cmd); // 调用linux命令获取旧文件列表
 
 		// 总血浆表
-		mergeOldData_list.clear();
-		for (int i = 0; i < Plasma_File_List.size(); i++) {
-			//readExcelData(new File(Plasma_File_List.get(i)), Plasma_Data_List);
-			//System.out.println(Plasma_File_List.get(i));
-			mergeExcelData_list.clear();
-			readExcelData(new File(Plasma_File_List.get(i)), mergeExcelData_list);
-			if (mergeOldData_list.size() == 0) {
-				mergeOldData_list.addAll(mergeExcelData_list);
-				continue;
-			} else {
-				if (mergeExcelData_list.size() == 0) {
-					if (i == Plasma_File_List.size()-1 && Plasma_Data_List.isEmpty()) {
-						Plasma_Data_List.addAll(mergeOldData_list);
-					}
+		if (Plasma_File_List.size() > 1) {
+			mergeOldData_list.clear();
+			for (int i = 0; i < Plasma_File_List.size(); i++) {
+				//readExcelData(new File(Plasma_File_List.get(i)), Plasma_Data_List);
+				//System.out.println(Plasma_File_List.get(i));
+				mergeExcelData_list.clear();
+				readExcelData(new File(Plasma_File_List.get(i)), mergeExcelData_list);
+				if (mergeOldData_list.size() == 0) {
+					mergeOldData_list.addAll(mergeExcelData_list);
 					continue;
 				} else {
-					Plasma_Data_List.clear();
-					mergeExcelData(mergeExcelData_list, mergeOldData_list, Plasma_Data_List);
-					mergeOldData_list.clear();
-					mergeOldData_list.addAll(Plasma_Data_List);
+					if (mergeExcelData_list.size() == 0) {
+						if (i == Plasma_File_List.size()-1 && Plasma_Data_List.isEmpty()) {
+							Plasma_Data_List.addAll(mergeOldData_list);
+						}
+						continue;
+					} else {
+						Plasma_Data_List.clear();
+						mergeExcelData(mergeExcelData_list, mergeOldData_list, Plasma_Data_List);
+						mergeOldData_list.clear();
+						mergeOldData_list.addAll(Plasma_Data_List);
+					}
 				}
 			}
+		} else if(Plasma_File_List.size() == 1) {
+			readExcelData(new File(Plasma_File_List.get(0)), Plasma_Data_List);
 		}
 		if (Cover == 1) {
 			old_porjaect_data.clear();
@@ -220,30 +224,34 @@ public class DataAggregation
 		System.out.println("血浆表已完成！");
 
 		// 总组织表
-		mergeOldData_list.clear();
-		int log = 0;
-		for (int i = 0; i < Tissue_File_List.size(); i++) {
-			//System.out.println(Tissue_File_List.get(i));
-			mergeExcelData_list.clear();
-			readExcelData(new File(Tissue_File_List.get(i)), mergeExcelData_list);
-			if (mergeOldData_list.size() == 0) {
-				mergeOldData_list.addAll(mergeExcelData_list);
-				continue;
-			} else {
-				if (mergeExcelData_list.size() == 0) {
-					//System.out.println("mergeExcelData_list.size() == 0 ");
-					if (i == Tissue_File_List.size()-1 && Tissue_Data_List.isEmpty()) {
-						Tissue_Data_List.addAll(mergeOldData_list);
-					}
+		if (Tissue_File_List.size() > 1) {
+			mergeOldData_list.clear();
+			int log = 0;
+			for (int i = 0; i < Tissue_File_List.size(); i++) {
+				//System.out.println(Tissue_File_List.get(i));
+				mergeExcelData_list.clear();
+				readExcelData(new File(Tissue_File_List.get(i)), mergeExcelData_list);
+				if (mergeOldData_list.size() == 0) {
+					mergeOldData_list.addAll(mergeExcelData_list);
 					continue;
 				} else {
-					//System.out.println("mergeExcelData_list.size() != 0 ");
-					Tissue_Data_List.clear();
-					mergeExcelData(mergeExcelData_list, mergeOldData_list, Tissue_Data_List);
-					mergeOldData_list.clear();
-					mergeOldData_list.addAll(Tissue_Data_List);
+					if (mergeExcelData_list.size() == 0) {
+						//System.out.println("mergeExcelData_list.size() == 0 ");
+						if (i == Tissue_File_List.size()-1 && Tissue_Data_List.isEmpty()) {
+							Tissue_Data_List.addAll(mergeOldData_list);
+						}
+						continue;
+					} else {
+						//System.out.println("mergeExcelData_list.size() != 0 ");
+						Tissue_Data_List.clear();
+						mergeExcelData(mergeExcelData_list, mergeOldData_list, Tissue_Data_List);
+						mergeOldData_list.clear();
+						mergeOldData_list.addAll(Tissue_Data_List);
+					}
 				}
 			}
+		} else if (Tissue_File_List.size() == 1) {
+			readExcelData(new File(Tissue_File_List.get(0)), Tissue_Data_List);
 		}
 		
 		if (Cover == 1) {
@@ -311,26 +319,30 @@ public class DataAggregation
 		System.out.println("组织表已完成！");
 		
 		// 总白细胞表
-		mergeOldData_list.clear();
-		for (int i = 0; i < BC_File_List.size(); i++) {
-			mergeExcelData_list.clear();
-			readExcelData(new File(BC_File_List.get(i)), mergeExcelData_list);
-			if (mergeOldData_list.size() == 0) {
-				mergeOldData_list.addAll(mergeExcelData_list);
-				continue;
-			} else {
-				if (mergeExcelData_list.size() == 0) {
-					if (i == BC_File_List.size()-1 && BC_Data_List.isEmpty()) {
-						BC_Data_List.addAll(mergeOldData_list);
-					}
+		if (BC_File_List.size() > 1) {
+			mergeOldData_list.clear();
+			for (int i = 0; i < BC_File_List.size(); i++) {
+				mergeExcelData_list.clear();
+				readExcelData(new File(BC_File_List.get(i)), mergeExcelData_list);
+				if (mergeOldData_list.size() == 0) {
+					mergeOldData_list.addAll(mergeExcelData_list);
 					continue;
 				} else {
-					BC_Data_List.clear();
-					mergeExcelData(mergeExcelData_list, mergeOldData_list, BC_Data_List);
-					mergeOldData_list.clear();
-					mergeOldData_list.addAll(BC_Data_List);
+					if (mergeExcelData_list.size() == 0) {
+						if (i == BC_File_List.size()-1 && BC_Data_List.isEmpty()) {
+							BC_Data_List.addAll(mergeOldData_list);
+						}
+						continue;
+					} else {
+						BC_Data_List.clear();
+						mergeExcelData(mergeExcelData_list, mergeOldData_list, BC_Data_List);
+						mergeOldData_list.clear();
+						mergeOldData_list.addAll(BC_Data_List);
+					}
 				}
 			}
+		} else if (BC_File_List.size() == 1) {
+			readExcelData(new File(BC_File_List.get(0)), BC_Data_List);
 		}
 		if (Cover == 1) {
 			old_porjaect_data.clear();
@@ -397,26 +409,30 @@ public class DataAggregation
 		System.out.println("白细胞表已完成！");
 
 		// 测试数据表
-		mergeOldData_list.clear();
-		for (int i = 0; i < Test_File_List.size(); i++) {
-			mergeExcelData_list.clear();
-			readExcelData(new File(Test_File_List.get(i)), mergeExcelData_list);
-			if (mergeOldData_list.size() == 0) {
-				mergeOldData_list.addAll(mergeExcelData_list);
-				continue;
-			} else {
-				if (mergeExcelData_list.size() == 0) {
-					if (i == Test_File_List.size()-1 && Test_Data_List.isEmpty()) {
-						Test_Data_List.addAll(mergeOldData_list);
-					}
+		if (Test_File_List.size() > 1) {
+			mergeOldData_list.clear();
+			for (int i = 0; i < Test_File_List.size(); i++) {
+				mergeExcelData_list.clear();
+				readExcelData(new File(Test_File_List.get(i)), mergeExcelData_list);
+				if (mergeOldData_list.size() == 0) {
+					mergeOldData_list.addAll(mergeExcelData_list);
 					continue;
 				} else {
-					Test_Data_List.clear();
-					mergeExcelData(mergeExcelData_list, mergeOldData_list, Test_Data_List);
-					mergeOldData_list.clear();
-					mergeOldData_list.addAll(Test_Data_List);
+					if (mergeExcelData_list.size() == 0) {
+						if (i == Test_File_List.size()-1 && Test_Data_List.isEmpty()) {
+							Test_Data_List.addAll(mergeOldData_list);
+						}
+						continue;
+					} else {
+						Test_Data_List.clear();
+						mergeExcelData(mergeExcelData_list, mergeOldData_list, Test_Data_List);
+						mergeOldData_list.clear();
+						mergeOldData_list.addAll(Test_Data_List);
+					}
 				}
 			}
+		} else if (Test_File_List.size() == 1) {
+			readExcelData(new File(Test_File_List.get(0)), Test_Data_List);
 		}
 		if (Cover == 1) {
 			old_porjaect_data.clear();
@@ -1122,47 +1138,29 @@ public class DataAggregation
 			for (int i = 0; i < new_data.size(); i++) {
 				String str_new[] = new_data.get(i).split("\t");
 				if (str_new[1].equals(str_up[1])) {
-					for (int k = 0; k < str_new.length; k++) {
-						if (k == 24) {
-							break;
-						} else {
-							if (str_up[k].equals("NA")) {
-								continue;
-							} else {
-								if (str_new[k].equals("NA") || str_new[k].equals(str_up[k])) {
-									continue;
-								} else {
-									log1 = 1;
-									break;
-								}
-							}
-						}
-					}
+					log1 = 1;
+					break;
 				} else {
 					continue;
 				}
 			}
-			if (log1 == 1) {
+			if (log1 == 0) {
 				str_up[34] = "该记录不存在"; //做标记
-				String data = null;
-				for (int x = 0; x < str_up.length; x++) {
-					if (x == 0) {
-						data = str_up[x];
-					} else {
-						data += "\t" + str_up[x];
-					}
-				}
-				if (!final_data.contains(data)) {
-					final_data.add(data);
-				}
-				continue;
 			} else {
-				if (!final_data.contains(updata_data.get(j))) {
-					final_data.add(updata_data.get(j));
-					String str_row[] = updata_data.get(j).split("\t");
-					
+				str_up[34] = ""; //清空标记
+			}
+			String data = null;
+			for (int x = 0; x < str_up.length; x++) {
+				if (x == 0) {
+					data = str_up[x];
+				} else {
+					data += "\t" + str_up[x];
 				}
 			}
+			if (!final_data.contains(data)) {
+				final_data.add(data);
+			}
+			// continue;
 		}
 		
 		createXlsx(file); // 创建新的文件，达到清除数据效果		
